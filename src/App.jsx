@@ -1393,7 +1393,7 @@ export default function App() {
         padding:"80px 20px 60px",
       }}>
         {page==="translator" && (
-          <SizeTranslator />
+          <SizeTranslator lang={lang} />
         )}
         {page==="seller" && (
           <SellerPage t={t} lang={lang} onBack={() => setPage("home")}/>
