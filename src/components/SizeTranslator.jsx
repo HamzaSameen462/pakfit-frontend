@@ -1,437 +1,625 @@
-// src/components/SizeTranslator.jsx
-// ─────────────────────────────────────────────────────────────────────────────
-// PakFit Cross-Brand Size Translator
-// Drop this file in src/components/ and import it wherever you want in App.jsx
-// ─────────────────────────────────────────────────────────────────────────────
-
+// src/components/SizeTranslator.jsx — PakFit v3 — Urdu + User Friendly + Risk Score
 import { useState, useEffect, useCallback } from "react";
 
 const API = import.meta.env.VITE_API_URL || "https://ham-462-pakfit-backend.hf.space";
 
-// ── Confidence badge colours ─────────────────────────────────────────────────
-function ConfidenceBadge({ score }) {
-  const pct = Math.round(score);
-  let bg, color;
-  if      (pct >= 88) { bg = "#d4edda"; color = "#1a6633"; }
-  else if (pct >= 72) { bg = "#fff3cd"; color = "#856404"; }
-  else                { bg = "#f8d7da"; color = "#721c24"; }
+// ── i18n ──────────────────────────────────────────────────────────────────────
+const ST = {
+  en: {
+    badge:        "Cross-Brand Intelligence",
+    title:        "Size Translator",
+    sub:          "Know your size at one brand? Find it at all others.",
+    subUr:        "اپنی سائز جانیں — ہر برانڈ میں",
+    garmentLabel: "GARMENT TYPE",
+    brandLabel:   "I KNOW MY SIZE AT…",
+    sizeLabel:    "MY SIZE AT",
+    translateBtn: "🔄 Translate My Size",
+    translating:  "Translating…",
+    selectBrand:  "Select brand",
+    loading:      "Loading…",
+    fromLabel:    "Translating from",
+    brandsCount:  (n) => `${n} brands translated`,
+    shareBtn:     "📤 Share via WhatsApp",
+    footer:       "PakFit Engine v1 · Computed from real measurements",
+    showDetails:  "Show details",
+    hideDetails:  "Hide details",
+    runnerUp:     "Runner-up",
+    betweenSizes: "Try both sizes",
+    noData:       "Not available yet",
+    verdicts: {
+      great:    "✦ Great fit",
+      good:     "✓ Good fit",
+      check:    "~ Worth checking",
+      between:  "⚠ You're between sizes",
+      tightUp:  "Size up recommended",
+      looseDown:"Size down available",
+    },
+    details: {
+      confidence: "Confidence",
+      fitType:    "Fit type",
+      chestDelta: "Chest room",
+      tooTight:   "Runs small",
+      loose:      "Has extra room",
+      regular:    "True to size",
+      slim:       "Slightly slim",
+      comfort:    "Comfortable room",
+    },
+    garments: ["Kameez","Kurta","Shalwar","Waistcoat"],
+  },
+  ur: {
+    badge:        "تمام برانڈز کا موازنہ",
+    title:        "سائز ترجمان",
+    sub:          "ایک برانڈ کی سائز جانتے ہیں؟ باقی سب میں تلاش کریں۔",
+    subUr:        "Know your size at one brand? Find it at all others.",
+    garmentLabel: "لباس کی قسم",
+    brandLabel:   "میری سائز اس برانڈ میں معلوم ہے",
+    sizeLabel:    "میری سائز",
+    translateBtn: "🔄 سائز ترجمہ کریں",
+    translating:  "ترجمہ ہو رہا ہے…",
+    selectBrand:  "برانڈ منتخب کریں",
+    loading:      "لوڈ ہو رہا ہے…",
+    fromLabel:    "ترجمہ ہو رہا ہے",
+    brandsCount:  (n) => `${n} برانڈز کا ترجمہ`,
+    shareBtn:     "📤 واٹس ایپ پر شیئر کریں",
+    footer:       "PakFit Engine v1 · حقیقی پیمائش سے حساب",
+    showDetails:  "تفصیل دیکھیں",
+    hideDetails:  "تفصیل چھپائیں",
+    runnerUp:     "متبادل سائز",
+    betweenSizes: "دونوں سائز آزمائیں",
+    noData:       "ابھی دستیاب نہیں",
+    verdicts: {
+      great:    "✦ بہترین فٹ",
+      good:     "✓ اچھی فٹ",
+      check:    "~ جانچ کریں",
+      between:  "⚠ دو سائز کے درمیان ہیں",
+      tightUp:  "ایک سائز بڑا لیں",
+      looseDown:"ایک سائز چھوٹا بھی چل سکتا ہے",
+    },
+    details: {
+      confidence: "اعتماد",
+      fitType:    "فٹ قسم",
+      chestDelta: "سینے کی جگہ",
+      tooTight:   "چھوٹا ہے",
+      loose:      "ڈھیلا ہے",
+      regular:    "بالکل صحیح",
+      slim:       "قدرے تنگ",
+      comfort:    "آرام دہ گنجائش",
+    },
+    garments: ["کمیز","کرتہ","شلوار","واسکٹ"],
+  },
+};
 
+const GARMENT_VALUES = ["Kameez","Kurta","Shalwar","Waistcoat"];
+
+// ── Risk engine ───────────────────────────────────────────────────────────────
+function getRisk(score, fitType, runnerUpScore, lang) {
+  const t = ST[lang];
+  const boundary  = runnerUpScore && (score - runnerUpScore) < 6;
+  const isTight   = fitType === "Too Tight";
+  const isLoose   = fitType === "Loose";
+
+  if (boundary)
+    return { verdict: t.verdicts.between,  color:"#A78BFA", barColor:"#6366F1", barPct: score };
+  if (isTight)
+    return { verdict: t.verdicts.tightUp,  color:"#F87171", barColor:"#EF4444", barPct: score };
+  if (isLoose)
+    return { verdict: t.verdicts.looseDown,color:"#FBBF24", barColor:"#F59E0B", barPct: score };
+  if (score >= 88)
+    return { verdict: t.verdicts.great,    color:"#818CF8", barColor:"#4F46E5", barPct: score };
+  if (score >= 72)
+    return { verdict: t.verdicts.good,     color:"#A78BFA", barColor:"#6366F1", barPct: score };
+  return   { verdict: t.verdicts.check,    color:"#6B7280", barColor:"#374151", barPct: score };
+}
+
+function getFitLabel(fitType, lang) {
+  const map = {
+    "Regular":   ST[lang].details.regular,
+    "Comfort":   ST[lang].details.comfort,
+    "Slim":      ST[lang].details.slim,
+    "Too Tight": ST[lang].details.tooTight,
+    "Loose":     ST[lang].details.loose,
+  };
+  return map[fitType] || fitType;
+}
+
+function getChestLabel(delta, lang) {
+  if (delta === undefined || delta === null) return "—";
+  if (delta > 1.5)  return lang==="ur" ? `+${delta}" ڈھیلا` : `+${delta}" room`;
+  if (delta < -0.5) return lang==="ur" ? `${delta}" چھوٹا` : `${delta}" tight`;
+  return lang==="ur" ? "بالکل صحیح" : "True to size";
+}
+
+// ── Score bar ─────────────────────────────────────────────────────────────────
+function ScoreBar({ score, barColor, animate }) {
   return (
-    <span style={{
-      display:       "inline-block",
-      padding:       "2px 10px",
-      borderRadius:  "12px",
-      fontSize:      "13px",
-      fontWeight:    600,
-      background:    bg,
-      color:         color,
-    }}>
-      {pct}%
-    </span>
+    <div style={{ height:3, borderRadius:2, background:"rgba(255,255,255,0.06)", overflow:"hidden", marginTop:10 }}>
+      <div style={{
+        height:"100%", borderRadius:2,
+        background:`linear-gradient(90deg,${barColor},${barColor}99)`,
+        width: animate ? `${Math.round(score)}%` : "0%",
+        transition:"width 1.2s cubic-bezier(0.16,1,0.3,1)",
+        boxShadow:`0 0 6px ${barColor}66`,
+      }}/>
+    </div>
   );
 }
 
-// ── Single brand translation card ────────────────────────────────────────────
-function BrandCard({ t, index }) {
-  const [open, setOpen] = useState(false);
-  const SIZE_EMOJI = { XS:"🟣", S:"🔵", M:"🟢", L:"🟡", XL:"🟠", XXL:"🔴" };
+// ── Brand card ────────────────────────────────────────────────────────────────
+function BrandCard({ t: translation, index, lang }) {
+  const [open,    setOpen]    = useState(false);
+  const [animate, setAnimate] = useState(false);
+  const st = ST[lang];
+  const isRTL = lang === "ur";
+
+  useEffect(() => {
+    const id = setTimeout(() => setAnimate(true), index * 60 + 80);
+    return () => clearTimeout(id);
+  }, [index]);
+
+  const isNA = translation.recommended_size === "N/A";
+  const risk = !isNA ? getRisk(translation.confidence, translation.fit_type, translation.runner_up_confidence, lang) : null;
+  const chestDelta = translation.all_sizes?.[0]?.deltas?.chest;
 
   return (
     <div style={{
-      background:   "#fff",
-      border:       "1.5px solid #e8e0f5",
-      borderRadius: "14px",
-      padding:      "16px 18px",
-      marginBottom: "10px",
-      boxShadow:    "0 2px 8px rgba(80,40,120,0.06)",
-      transition:   "box-shadow .2s",
-      animation:    `fadeUp .35s ease ${index * 0.06}s both`,
+      background:"rgba(255,255,255,0.04)",
+      border:`1px solid ${open ? "rgba(79,70,229,0.35)" : "rgba(255,255,255,0.07)"}`,
+      borderRadius:16, padding:"16px 18px", marginBottom:10,
+      opacity: animate ? 1 : 0,
+      transform: animate ? "translateY(0)" : "translateY(10px)",
+      transition:"opacity .3s ease, transform .3s ease, border-color .2s, box-shadow .2s",
+      boxShadow: open ? "0 0 0 1px rgba(79,70,229,0.15), 0 8px 20px rgba(0,0,0,0.2)" : "none",
+      direction: isRTL ? "rtl" : "ltr",
     }}>
-      {/* Top row */}
+      {/* Main row */}
       <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div style={{ display:"flex", alignItems:"center", gap:"10px" }}>
-          <span style={{ fontSize:"22px" }}>{SIZE_EMOJI[t.recommended_size] || "⚪"}</span>
-          <div>
-            <div style={{ fontWeight:700, fontSize:"16px", color:"#2d1b6b" }}>
-              {t.brand}
-            </div>
-            <div style={{ fontSize:"12px", color:"#888" }}>
-              {t.fit_type}
-              {t.note && <span style={{ marginLeft:"6px", color:"#aaa" }}>· {t.note}</span>}
-            </div>
+        {/* Left */}
+        <div style={{ flex:1, minWidth:0 }}>
+          <div style={{ fontWeight:700, fontSize:15, color:"#F1F1F3", marginBottom:4, letterSpacing:"-0.2px" }}>
+            {translation.brand}
           </div>
+          {!isNA && risk && (
+            <div style={{ display:"flex", alignItems:"center", gap:6, flexWrap:"wrap" }}>
+              <span style={{
+                fontSize:12, fontWeight:600, color: risk.color,
+                background:`${risk.barColor}22`,
+                border:`1px solid ${risk.barColor}44`,
+                borderRadius:20, padding:"2px 10px",
+                fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+              }}>
+                {risk.verdict}
+              </span>
+            </div>
+          )}
+          {isNA && (
+            <span style={{ fontSize:12, color:"#4B5563", fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+              {st.noData}
+            </span>
+          )}
         </div>
-        <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:"28px", fontWeight:800, color:"#5b2fc9", lineHeight:1 }}>
-            {t.recommended_size}
+
+        {/* Right — size */}
+        <div style={{ textAlign: isRTL ? "left" : "right", marginLeft: isRTL ? 0 : 16, marginRight: isRTL ? 16 : 0, flexShrink:0 }}>
+          <div style={{
+            fontFamily:"'Libre Baskerville',Georgia,serif",
+            fontSize: isNA ? 16 : 30, fontWeight:700, lineHeight:1,
+            background: isNA ? "none" : "linear-gradient(135deg,#fff 20%,#818CF8 100%)",
+            WebkitBackgroundClip: isNA ? "none" : "text",
+            WebkitTextFillColor: isNA ? "#4B5563" : "transparent",
+            color: isNA ? "#4B5563" : "unset",
+          }}>
+            {translation.recommended_size}
           </div>
-          <ConfidenceBadge score={t.confidence} />
         </div>
       </div>
 
-      {/* Runner-up */}
-      {t.runner_up && (
-        <div style={{ marginTop:"8px", fontSize:"12px", color:"#888" }}>
-          Runner-up: <strong>{t.runner_up}</strong> ({Math.round(t.runner_up_confidence)}%)
+      {/* Score bar */}
+      {!isNA && risk && <ScoreBar score={risk.barPct} barColor={risk.barColor} animate={animate}/>}
+
+      {/* Runner-up plain language */}
+      {translation.runner_up && !isNA && (
+        <div style={{
+          marginTop:8, fontSize:12,
+          color: (translation.confidence - translation.runner_up_confidence) < 6 ? "#A78BFA" : "#4B5563",
+          fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+        }}>
+          {(translation.confidence - translation.runner_up_confidence) < 6
+            ? `⚠ ${st.betweenSizes}: ${translation.recommended_size} / ${translation.runner_up}`
+            : `${st.runnerUp}: ${translation.runner_up}`
+          }
         </div>
       )}
 
-      {/* All sizes toggle */}
-      {t.all_sizes && t.all_sizes.length > 1 && (
+      {/* Show/hide details */}
+      {!isNA && (
         <button
           onClick={() => setOpen(!open)}
           style={{
-            marginTop:    "10px",
-            background:   "none",
-            border:       "none",
-            color:        "#5b2fc9",
-            fontSize:     "12px",
-            cursor:       "pointer",
-            padding:      0,
-            fontWeight:   600,
+            marginTop:10, background:"none", border:"none",
+            color:"#4F46E5", fontSize:12, cursor:"pointer",
+            padding:0, fontWeight:600, fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+            display:"flex", alignItems:"center", gap:4,
           }}
         >
-          {open ? "▲ Hide all sizes" : "▼ Show all sizes"}
+          {open ? `▲ ${st.hideDetails}` : `▼ ${st.showDetails}`}
         </button>
       )}
 
-      {open && (
-        <div style={{ marginTop:"10px", overflowX:"auto" }}>
-          <table style={{ width:"100%", borderCollapse:"collapse", fontSize:"12px" }}>
-            <thead>
-              <tr style={{ background:"#f4f0fc" }}>
-                <th style={TH}>Size</th>
-                <th style={TH}>Fit Score</th>
-                <th style={TH}>Fit Type</th>
-                {t.all_sizes[0]?.deltas?.chest !== undefined && <th style={TH}>Chest Δ</th>}
-              </tr>
-            </thead>
-            <tbody>
-              {t.all_sizes.map((s, i) => (
-                <tr key={s.size}
-                  style={{ background: i === 0 ? "#f0ebff" : "transparent" }}>
-                  <td style={TD}>{s.size}{i===0?" ✓":""}</td>
-                  <td style={TD}><ConfidenceBadge score={s.score} /></td>
-                  <td style={TD}>{s.fit_type}</td>
-                  {s.deltas?.chest !== undefined && (
-                    <td style={{...TD, color: s.deltas.chest < -0.5 ? "#c00":"#1a6633"}}>
-                      {s.deltas.chest > 0 ? "+" : ""}{s.deltas.chest}"
-                    </td>
-                  )}
+      {/* Technical details — hidden by default */}
+      {open && !isNA && (
+        <div style={{
+          marginTop:12, borderTop:"1px solid rgba(255,255,255,0.05)",
+          paddingTop:12, direction: isRTL ? "rtl" : "ltr",
+        }}>
+          {/* Detail pills */}
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap", marginBottom:10 }}>
+            <DetailPill
+              label={st.details.confidence}
+              value={`${Math.round(translation.confidence)}%`}
+              color="#818CF8" isRTL={isRTL}
+            />
+            <DetailPill
+              label={st.details.fitType}
+              value={getFitLabel(translation.fit_type, lang)}
+              color="#A78BFA" isRTL={isRTL}
+            />
+            {chestDelta !== undefined && (
+              <DetailPill
+                label={st.details.chestDelta}
+                value={getChestLabel(chestDelta, lang)}
+                color="#6366F1" isRTL={isRTL}
+              />
+            )}
+          </div>
+
+          {/* All sizes table */}
+          {translation.all_sizes && translation.all_sizes.length > 1 && (
+            <table style={{ width:"100%", borderCollapse:"collapse", fontSize:12 }}>
+              <thead>
+                <tr>
+                  {["Size", st.details.confidence, st.details.fitType].map(h => (
+                    <th key={h} style={{
+                      padding:"4px 6px", textAlign: isRTL ? "right" : "left",
+                      color:"#4F46E5", fontWeight:600, fontSize:11,
+                      borderBottom:"1px solid rgba(79,70,229,0.15)",
+                      fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+                    }}>{h}</th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {translation.all_sizes.map((s, i) => (
+                  <tr key={s.size} style={{ background: i===0 ? "rgba(79,70,229,0.08)" : "transparent" }}>
+                    <td style={{ padding:"6px 6px", color: i===0?"#fff":"#6B7280", fontWeight: i===0?700:400 }}>
+                      {s.size}{i===0?" ✓":""}
+                    </td>
+                    <td style={{ padding:"6px 6px", color: s.score>=88?"#818CF8":s.score>=72?"#A78BFA":"#6B7280", fontWeight:600 }}>
+                      {Math.round(s.score)}%
+                    </td>
+                    <td style={{ padding:"6px 6px", color:"#6B7280", fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+                      {getFitLabel(s.fit_type, lang)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-const TH = {
-  padding:"6px 8px", textAlign:"left", fontWeight:600,
-  color:"#5b2fc9", borderBottom:"1px solid #e0d8f5"
-};
-const TD = { padding:"5px 8px", borderBottom:"1px solid #f0ece8" };
+function DetailPill({ label, value, color, isRTL }) {
+  return (
+    <div style={{
+      background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.07)",
+      borderRadius:10, padding:"6px 12px",
+    }}>
+      <div style={{
+        fontSize:10, color:"#6B7280", fontWeight:600,
+        textTransform:"uppercase", letterSpacing:.4, marginBottom:2,
+        fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+      }}>{label}</div>
+      <div style={{
+        fontSize:13, color, fontWeight:600,
+        fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+      }}>{value}</div>
+    </div>
+  );
+}
 
-// ── Main component ───────────────────────────────────────────────────────────
-export default function SizeTranslator() {
-  const GARMENT_TYPES = ["Kameez", "Kurta", "Shalwar", "Waistcoat"];
-  const SIZE_ORDER    = ["XS", "S", "M", "L", "XL", "XXL"];
+// ── Main component ────────────────────────────────────────────────────────────
+export default function SizeTranslator({ lang: propLang }) {
+  const lang   = propLang || "en";
+  const st     = ST[lang];
+  const isRTL  = lang === "ur";
 
-  const [brands,       setBrands]       = useState([]);
-  const [sizes,        setSizes]        = useState([]);
-  const [sourceBrand,  setSourceBrand]  = useState("");
-  const [sourceSize,   setSourceSize]   = useState("");
-  const [garmentType,  setGarmentType]  = useState("Kameez");
-  const [result,       setResult]       = useState(null);
-  const [loading,      setLoading]      = useState(false);
-  const [error,        setError]        = useState("");
-  const [brandsLoading,setBrandsLoading]= useState(false);
+  const [brands,        setBrands]        = useState([]);
+  const [sizes,         setSizes]         = useState([]);
+  const [sourceBrand,   setSourceBrand]   = useState("");
+  const [sourceSize,    setSourceSize]    = useState("");
+  const [garmentIndex,  setGarmentIndex]  = useState(0);
+  const [result,        setResult]        = useState(null);
+  const [loading,       setLoading]       = useState(false);
+  const [error,         setError]         = useState("");
+  const [brandsLoading, setBrandsLoading] = useState(false);
 
-  // ── Load brands whenever garment type changes ─────────────────────────────
+  const garmentType = GARMENT_VALUES[garmentIndex];
+
   useEffect(() => {
-    if (!garmentType) return;
     setBrandsLoading(true);
-    setSourceBrand("");
-    setSourceSize("");
-    setResult(null);
-    setSizes([]);
-
+    setSourceBrand(""); setSourceSize(""); setResult(null); setSizes([]);
     fetch(`${API}/api/brands-for-garment?garment_type=${encodeURIComponent(garmentType)}`)
       .then(r => r.json())
       .then(d => { setBrands(d.brands || []); setBrandsLoading(false); })
       .catch(() => { setBrands([]); setBrandsLoading(false); });
   }, [garmentType]);
 
-  // ── Load sizes whenever source brand changes ──────────────────────────────
   useEffect(() => {
-    if (!sourceBrand || !garmentType) { setSizes([]); return; }
-    setSourceSize("");
-    setResult(null);
-
+    if (!sourceBrand) { setSizes([]); return; }
+    setSourceSize(""); setResult(null);
     fetch(`${API}/api/sizes-for-brand?brand=${encodeURIComponent(sourceBrand)}&garment_type=${encodeURIComponent(garmentType)}`)
       .then(r => r.json())
       .then(d => setSizes(d.sizes || []))
       .catch(() => setSizes([]));
   }, [sourceBrand, garmentType]);
 
-  // ── Translate ─────────────────────────────────────────────────────────────
   const handleTranslate = useCallback(async () => {
     if (!sourceBrand || !sourceSize) return;
-    setLoading(true);
-    setError("");
-    setResult(null);
-
+    setLoading(true); setError(""); setResult(null);
     try {
       const res = await fetch(`${API}/api/translate-size`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          source_brand:  sourceBrand,
-          source_size:   sourceSize,
-          garment_type:  garmentType,
-        }),
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ source_brand:sourceBrand, source_size:sourceSize, garment_type:garmentType }),
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || "Translation failed");
       setResult(data);
-    } catch (e) {
-      setError(e.message);
-    } finally {
-      setLoading(false);
-    }
+    } catch(e) { setError(e.message); }
+    finally { setLoading(false); }
   }, [sourceBrand, sourceSize, garmentType]);
 
-  // ── Share results ─────────────────────────────────────────────────────────
   const handleShare = () => {
     if (!result) return;
     const lines = [
-      `🇵🇰 PakFit Size Translation — ${result.source.garment_type}`,
-      `I wear ${result.source.brand} ${result.source.size}`,
+      `🇵🇰 PakFit ${st.title} — ${result.source.garment_type}`,
+      `${result.source.brand} ${result.source.size}`,
       "",
-      ...result.translations.map(
-        t => `${t.brand}: ${t.recommended_size} (${Math.round(t.confidence)}%)`
+      ...result.translations.map(t =>
+        t.recommended_size !== "N/A"
+          ? `${t.brand}: ${t.recommended_size} — ${getRisk(t.confidence, t.fit_type, t.runner_up_confidence, lang).verdict}`
+          : `${t.brand}: ${st.noData}`
       ),
       "",
-      result.insight,
+      result.insight || "",
       "",
-      "Generated by PakFit — pakfit.app",
+      "PakFit — pakfit.app",
     ].join("\n");
-
-    if (navigator.share) {
-      navigator.share({ title: "My PakFit Size Card", text: lines });
-    } else {
-      navigator.clipboard.writeText(lines).then(() =>
-        alert("Size translation copied to clipboard! Paste in WhatsApp.")
-      );
-    }
+    if (navigator.share) navigator.share({ title:`PakFit ${st.title}`, text:lines });
+    else navigator.clipboard.writeText(lines).then(() => alert(lang==="ur" ? "کاپی ہو گیا!" : "Copied! Paste in WhatsApp."));
   };
+
+  const canTranslate = sourceBrand && sourceSize && !loading;
 
   return (
     <div style={{
-      fontFamily:   "'Segoe UI', system-ui, sans-serif",
-      maxWidth:     "520px",
-      margin:       "0 auto",
-      padding:      "0 16px 32px",
+      fontFamily:"'Poppins',sans-serif",
+      maxWidth:520, margin:"0 auto", padding:"0 0 40px",
+      direction: isRTL ? "rtl" : "ltr",
     }}>
-      <style>{`
-        @keyframes fadeUp {
-          from { opacity:0; transform:translateY(16px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        select, button { font-family: inherit; }
-      `}</style>
 
       {/* Header */}
-      <div style={{ textAlign:"center", padding:"28px 0 20px" }}>
-        <div style={{ fontSize:"32px", marginBottom:"6px" }}>🔄</div>
-        <h2 style={{ margin:0, fontSize:"22px", fontWeight:800, color:"#2d1b6b" }}>
-          Size Translator
+      <div style={{ textAlign:"center", padding:"20px 0 24px" }}>
+        <div style={{
+          display:"inline-flex", alignItems:"center", gap:7,
+          background:"rgba(79,70,229,0.12)", border:"1px solid rgba(79,70,229,0.25)",
+          borderRadius:20, padding:"5px 14px", marginBottom:16,
+        }}>
+          <div style={{ width:6, height:6, borderRadius:"50%", background:"#4F46E5", animation:"pulse 2s infinite" }}/>
+          <span style={{ fontSize:11.5, color:"#818CF8", fontWeight:500,
+            fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+            {st.badge}
+          </span>
+        </div>
+        <h2 style={{
+          margin:0, fontSize:24, fontWeight:700, color:"#F1F1F3",
+          fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "'Libre Baskerville',Georgia,serif",
+          letterSpacing: isRTL ? 0 : "-0.3px",
+        }}>
+          {st.title}
         </h2>
-        <p style={{ margin:"6px 0 0", fontSize:"14px", color:"#777" }}>
-          Know your size at one brand? Find your size at all others.
-        </p>
-        <p style={{ margin:"2px 0 0", fontSize:"13px", color:"#aaa" }}>
-          اپنی سائز جانیں — ہر برانڈ میں
-        </p>
+        <p style={{
+          margin:"8px 0 4px", fontSize:13, color:"#6B7280", lineHeight:1.6,
+          fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+        }}>{st.sub}</p>
+        <p style={{
+          margin:0, fontSize:12, color:"#374151",
+          fontFamily: isRTL ? "inherit" : "'Noto Sans Arabic',sans-serif",
+        }}>{st.subUr}</p>
       </div>
 
-      {/* Controls */}
-      <div style={{
-        background:   "#fff",
-        borderRadius: "16px",
-        padding:      "20px",
-        boxShadow:    "0 4px 20px rgba(80,40,120,0.10)",
-        border:       "1.5px solid #ede8ff",
-        marginBottom: "20px",
-      }}>
-        {/* Garment type */}
-        <label style={LABEL}>Garment Type / لباس کی قسم</label>
-        <div style={{ display:"flex", gap:"8px", flexWrap:"wrap", marginBottom:"14px" }}>
-          {GARMENT_TYPES.map(g => (
-            <button
-              key={g}
-              onClick={() => setGarmentType(g)}
-              style={{
-                padding:      "7px 16px",
-                borderRadius: "20px",
-                border:       garmentType === g ? "none" : "1.5px solid #d0c8ee",
-                background:   garmentType === g ? "#5b2fc9" : "#f8f6ff",
-                color:        garmentType === g ? "#fff" : "#5b2fc9",
-                fontWeight:   600,
-                fontSize:     "13px",
-                cursor:       "pointer",
-                transition:   "all .15s",
-              }}
-            >
-              {g}
-            </button>
+      {/* Step 1 — Garment */}
+      <StepCard step="1" label={st.garmentLabel} isRTL={isRTL}>
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+          {st.garments.map((g, i) => (
+            <button key={g} onClick={() => setGarmentIndex(i)} style={{
+              padding:"8px 18px", borderRadius:20,
+              border: garmentIndex===i ? "none" : "1px solid rgba(255,255,255,0.08)",
+              background: garmentIndex===i ? "#4F46E5" : "rgba(255,255,255,0.03)",
+              color: garmentIndex===i ? "#fff" : "#6B7280",
+              fontWeight:600, fontSize:13, cursor:"pointer",
+              fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+              transition:"all .2s",
+              boxShadow: garmentIndex===i ? "0 4px 14px rgba(79,70,229,0.35)" : "none",
+            }}>{g}</button>
           ))}
         </div>
+      </StepCard>
 
-        {/* Source brand */}
-        <label style={LABEL}>
-          I know my size at… / میری سائز اس برانڈ میں:
-        </label>
-        <select
-          value={sourceBrand}
-          onChange={e => setSourceBrand(e.target.value)}
-          style={SELECT}
-          disabled={brandsLoading}
-        >
-          <option value="">{brandsLoading ? "Loading brands…" : "Select brand"}</option>
-          {brands.map(b => <option key={b} value={b}>{b}</option>)}
-        </select>
+      {/* Step 2 — Brand */}
+      <StepCard step="2" label={st.brandLabel} isRTL={isRTL}>
+        <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+          {brandsLoading
+            ? <span style={{ fontSize:13, color:"#4B5563",
+                fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+                {st.loading}
+              </span>
+            : brands.map(b => (
+              <button key={b} onClick={() => setSourceBrand(b)} style={{
+                padding:"7px 16px", borderRadius:10,
+                border: sourceBrand===b ? "1px solid #4F46E5" : "1px solid rgba(255,255,255,0.07)",
+                background: sourceBrand===b ? "rgba(79,70,229,0.15)" : "rgba(255,255,255,0.03)",
+                color: sourceBrand===b ? "#818CF8" : "#6B7280",
+                fontWeight: sourceBrand===b ? 700 : 400,
+                fontSize:13, cursor:"pointer",
+                fontFamily:"inherit", transition:"all .2s",
+              }}>{b}</button>
+            ))
+          }
+        </div>
+      </StepCard>
 
-        {/* Source size */}
-        {sizes.length > 0 && (
-          <>
-            <label style={{...LABEL, marginTop:"12px"}}>
-              My size at {sourceBrand}:
-            </label>
-            <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
-              {sizes.map(s => (
-                <button
-                  key={s}
-                  onClick={() => setSourceSize(s)}
-                  style={{
-                    padding:      "8px 18px",
-                    borderRadius: "10px",
-                    border:       sourceSize === s ? "none" : "1.5px solid #d0c8ee",
-                    background:   sourceSize === s ? "#5b2fc9" : "#f8f6ff",
-                    color:        sourceSize === s ? "#fff" : "#5b2fc9",
-                    fontWeight:   700,
-                    fontSize:     "15px",
-                    cursor:       "pointer",
-                    transition:   "all .15s",
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </>
-        )}
+      {/* Step 3 — Size */}
+      {sizes.length > 0 && (
+        <StepCard step="3" label={`${st.sizeLabel} ${sourceBrand}`} isRTL={isRTL}>
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            {sizes.map(s => (
+              <button key={s} onClick={() => setSourceSize(s)} style={{
+                padding:"10px 22px", borderRadius:10,
+                border: sourceSize===s ? "none" : "1px solid rgba(255,255,255,0.08)",
+                background: sourceSize===s
+                  ? "linear-gradient(135deg,#4F46E5,#6366F1)"
+                  : "rgba(255,255,255,0.03)",
+                color: sourceSize===s ? "#fff" : "#9CA3AF",
+                fontWeight:700, fontSize:16, cursor:"pointer",
+                fontFamily:"inherit", transition:"all .2s",
+                boxShadow: sourceSize===s ? "0 4px 16px rgba(79,70,229,0.4)" : "none",
+              }}>{s}</button>
+            ))}
+          </div>
+        </StepCard>
+      )}
 
-        {/* Translate button */}
+      {/* Translate button */}
+      {sourceBrand && sizes.length > 0 && (
         <button
           onClick={handleTranslate}
-          disabled={!sourceBrand || !sourceSize || loading}
+          disabled={!canTranslate}
           style={{
-            marginTop:    "18px",
-            width:        "100%",
-            padding:      "14px",
-            borderRadius: "12px",
-            border:       "none",
-            background:   (!sourceBrand || !sourceSize) ? "#ccc" : "linear-gradient(135deg, #5b2fc9, #8b5cf6)",
-            color:        "#fff",
-            fontSize:     "16px",
-            fontWeight:   700,
-            cursor:       (!sourceBrand || !sourceSize) ? "not-allowed" : "pointer",
-            transition:   "opacity .2s",
-            opacity:      loading ? 0.7 : 1,
+            width:"100%", padding:15, borderRadius:14, border:"none",
+            background: !canTranslate
+              ? "rgba(255,255,255,0.04)"
+              : "linear-gradient(135deg,#4F46E5,#6366F1)",
+            color: !canTranslate ? "#4B5563" : "#fff",
+            fontSize:15, fontWeight:700,
+            cursor: !canTranslate ? "not-allowed" : "pointer",
+            fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+            transition:"all .25s", marginBottom:16,
+            boxShadow: canTranslate ? "0 6px 24px rgba(79,70,229,0.4)" : "none",
+            opacity: loading ? 0.8 : 1,
           }}
         >
-          {loading ? "Translating…" : "🔄 Translate My Size"}
+          {loading
+            ? <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                <span style={{
+                  width:16, height:16, borderRadius:"50%",
+                  border:"2px solid rgba(255,255,255,0.3)", borderTopColor:"#fff",
+                  animation:"spin .7s linear infinite", display:"inline-block",
+                }}/>
+                {st.translating}
+              </span>
+            : st.translateBtn
+          }
         </button>
-      </div>
+      )}
 
       {/* Error */}
       {error && (
         <div style={{
-          background:"#fff0f0", border:"1.5px solid #ffc0c0",
-          borderRadius:"12px", padding:"12px 16px",
-          color:"#c00", marginBottom:"16px", fontSize:"14px"
-        }}>
-          ⚠️ {error}
-        </div>
+          background:"rgba(248,113,113,0.08)", border:"1px solid rgba(248,113,113,0.2)",
+          borderRadius:12, padding:"12px 16px", color:"#F87171",
+          marginBottom:16, fontSize:13,
+          fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+        }}>⚠ {error}</div>
       )}
 
       {/* Results */}
       {result && (
-        <div style={{ animation:"fadeUp .35s ease" }}>
-          {/* Summary bar */}
+        <div>
+          {/* Summary */}
           <div style={{
-            background:   "linear-gradient(135deg, #5b2fc9, #8b5cf6)",
-            borderRadius: "14px",
-            padding:      "16px 20px",
-            color:        "#fff",
-            marginBottom: "16px",
+            background:"linear-gradient(135deg,rgba(79,70,229,0.18),rgba(99,102,241,0.08))",
+            border:"1px solid rgba(79,70,229,0.25)",
+            borderRadius:16, padding:"18px 20px", marginBottom:14,
           }}>
-            <div style={{ fontSize:"13px", opacity:0.85, marginBottom:"4px" }}>
-              Translating from
+            <div style={{
+              fontSize:11, color:"#6B7280", fontWeight:600,
+              textTransform:"uppercase", letterSpacing:.6, marginBottom:4,
+              fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+            }}>
+              {st.fromLabel}
             </div>
-            <div style={{ fontSize:"22px", fontWeight:800, letterSpacing:"-0.5px" }}>
+            <div style={{
+              fontSize:26, fontWeight:800, color:"#F1F1F3",
+              letterSpacing:"-0.5px",
+              fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "'Libre Baskerville',Georgia,serif",
+            }}>
               {result.source.brand} — {result.source.size}
             </div>
-            <div style={{ fontSize:"12px", opacity:0.8, marginTop:"2px" }}>
+            <div style={{
+              fontSize:12, color:"#6B7280", marginTop:2,
+              fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+            }}>
               {result.source.garment_type}
             </div>
             {result.insight && (
               <div style={{
-                marginTop:    "10px",
-                background:   "rgba(255,255,255,0.15)",
-                borderRadius: "8px",
-                padding:      "8px 12px",
-                fontSize:     "13px",
-                lineHeight:   1.4,
+                marginTop:12, background:"rgba(255,255,255,0.04)",
+                borderRadius:10, padding:"10px 14px",
+                fontSize:13, color:"#9CA3AF", lineHeight:1.6,
+                border:"1px solid rgba(255,255,255,0.06)",
+                fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
               }}>
                 💡 {result.insight}
               </div>
             )}
           </div>
 
-          {/* Brand cards */}
-          <div style={{ fontSize:"13px", color:"#888", marginBottom:"10px", fontWeight:600 }}>
-            {result.translations.length} brands translated
+          <div style={{
+            fontSize:12, color:"#4B5563", marginBottom:10, fontWeight:600,
+            fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+          }}>
+            {st.brandsCount(result.translations.length)}
           </div>
 
           {result.translations.map((t, i) => (
-            <BrandCard key={t.brand} t={t} index={i} />
+            <BrandCard key={t.brand} t={t} index={i} lang={lang}/>
           ))}
 
-          {/* Share button */}
+          {/* Share */}
           <button
             onClick={handleShare}
             style={{
-              marginTop:    "16px",
-              width:        "100%",
-              padding:      "13px",
-              borderRadius: "12px",
-              border:       "1.5px solid #5b2fc9",
-              background:   "transparent",
-              color:        "#5b2fc9",
-              fontSize:     "15px",
-              fontWeight:   700,
-              cursor:       "pointer",
+              marginTop:16, width:"100%", padding:14, borderRadius:12,
+              border:"1px solid rgba(79,70,229,0.3)",
+              background:"rgba(79,70,229,0.08)", color:"#818CF8",
+              fontSize:14, fontWeight:600, cursor:"pointer",
+              fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+              transition:"all .2s",
             }}
+            onMouseEnter={e => { e.currentTarget.style.background="rgba(79,70,229,0.15)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background="rgba(79,70,229,0.08)"; }}
           >
-            📤 Share via WhatsApp
+            {st.shareBtn}
           </button>
 
-          <p style={{ textAlign:"center", fontSize:"11px", color:"#bbb", marginTop:"12px" }}>
-            Powered by PakFit Engine v1 · {result.translations.length} brands · Real measurements
+          <p style={{
+            textAlign:"center", fontSize:11, color:"#374151", marginTop:14,
+            fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+          }}>
+            {st.footer}
           </p>
         </div>
       )}
@@ -439,22 +627,30 @@ export default function SizeTranslator() {
   );
 }
 
-// ── Shared style tokens ───────────────────────────────────────────────────────
-const LABEL = {
-  display:      "block",
-  fontSize:     "13px",
-  fontWeight:   600,
-  color:        "#555",
-  marginBottom: "8px",
-};
-const SELECT = {
-  width:        "100%",
-  padding:      "10px 14px",
-  borderRadius: "10px",
-  border:       "1.5px solid #d0c8ee",
-  fontSize:     "15px",
-  color:        "#2d1b6b",
-  background:   "#f8f6ff",
-  appearance:   "none",
-  cursor:       "pointer",
-};
+// ── Step card wrapper ─────────────────────────────────────────────────────────
+function StepCard({ step, label, children, isRTL }) {
+  return (
+    <div style={{
+      background:"rgba(255,255,255,0.04)",
+      border:"1px solid rgba(255,255,255,0.07)",
+      borderRadius:16, padding:"18px 20px", marginBottom:12,
+    }}>
+      <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:14 }}>
+        <div style={{
+          width:24, height:24, borderRadius:8,
+          background:"rgba(79,70,229,0.2)",
+          border:"1px solid rgba(79,70,229,0.3)",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:12, fontWeight:700, color:"#818CF8", flexShrink:0,
+        }}>{step}</div>
+        <span style={{
+          fontSize:11, fontWeight:600, color:"#6B7280",
+          textTransform: isRTL ? "none" : "uppercase",
+          letterSpacing: isRTL ? 0 : ".5px",
+          fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+        }}>{label}</span>
+      </div>
+      {children}
+    </div>
+  );
+}
