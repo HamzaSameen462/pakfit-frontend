@@ -466,17 +466,30 @@ export default function SizeTranslator({ lang: propLang }) {
                 fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
                 {st.loading}
               </span>
-            : brands.map(b => (
-              <button key={b} onClick={() => setSourceBrand(b)} style={{
+            : <>
+              {brands.map(b => (
+                <button key={b} onClick={() => setSourceBrand(b)} style={{
+                  padding:"7px 16px", borderRadius:10,
+                  border: sourceBrand===b ? "1px solid #4F46E5" : "1px solid rgba(255,255,255,0.07)",
+                  background: sourceBrand===b ? "rgba(79,70,229,0.15)" : "rgba(255,255,255,0.03)",
+                  color: sourceBrand===b ? "#818CF8" : "#6B7280",
+                  fontWeight: sourceBrand===b ? 700 : 400,
+                  fontSize:13, cursor:"pointer",
+                  fontFamily:"inherit", transition:"all .2s",
+                }}>{b}</button>
+              ))}
+              <button onClick={() => setSourceBrand("__unknown__")} style={{
                 padding:"7px 16px", borderRadius:10,
-                border: sourceBrand===b ? "1px solid #4F46E5" : "1px solid rgba(255,255,255,0.07)",
-                background: sourceBrand===b ? "rgba(79,70,229,0.15)" : "rgba(255,255,255,0.03)",
-                color: sourceBrand===b ? "#818CF8" : "#6B7280",
-                fontWeight: sourceBrand===b ? 700 : 400,
-                fontSize:13, cursor:"pointer",
-                fontFamily:"inherit", transition:"all .2s",
-              }}>{b}</button>
-            ))
+                border: sourceBrand==="__unknown__" || sourceBrand?.startsWith("__unknown__:") ? "1px solid #F59E0B" : "1px dashed rgba(245,158,11,0.3)",
+                background: sourceBrand==="__unknown__" || sourceBrand?.startsWith("__unknown__:") ? "rgba(245,158,11,0.1)" : "transparent",
+                color: sourceBrand==="__unknown__" || sourceBrand?.startsWith("__unknown__:") ? "#F59E0B" : "#4B5563",
+                fontWeight:500, fontSize:12, cursor:"pointer",
+                fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
+                transition:"all .2s",
+              }}>
+                {isRTL ? "+ میرا برانڈ یہاں نہیں" : "+ My brand isn't listed"}
+              </button>
+            </>
           }
         </div>
       </StepCard>
@@ -500,6 +513,47 @@ export default function SizeTranslator({ lang: propLang }) {
             ))}
           </div>
         </StepCard>
+      )}
+
+      {(sourceBrand === "__unknown__" || sourceBrand?.startsWith("__unknown__:")) && (
+        <div style={{
+          background:"rgba(245,158,11,0.06)",
+          border:"1px solid rgba(245,158,11,0.2)",
+          borderRadius:14, padding:"16px", marginBottom:12,
+        }}>
+          <p style={{ fontSize:12, fontWeight:600, color:"#F59E0B", marginBottom:8,
+            fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+            {isRTL ? "اپنا برانڈ اور سائز درج کریں" : "Enter your brand and size"}
+          </p>
+          <input
+            placeholder={isRTL ? "برانڈ کا نام" : "Brand name (e.g. Tarzz, Breakout)"}
+            style={{
+              width:"100%", padding:"10px 14px", borderRadius:10, marginBottom:10,
+              border:"1px solid rgba(245,158,11,0.2)",
+              background:"rgba(255,255,255,0.04)", color:"#F1F1F3",
+              fontSize:13, fontFamily:"inherit", outline:"none",
+            }}
+            onChange={e => setSourceBrand(`__unknown__:${e.target.value}`)}
+          />
+          <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
+            {["XS","S","M","L","XL","XXL"].map(s => (
+              <button key={s} onClick={() => setSourceSize(s)} style={{
+                padding:"8px 16px", borderRadius:10,
+                border: sourceSize===s ? "none" : "1px solid rgba(255,255,255,0.08)",
+                background: sourceSize===s ? "linear-gradient(135deg,#4F46E5,#6366F1)" : "rgba(255,255,255,0.03)",
+                color: sourceSize===s ? "#fff" : "#9CA3AF",
+                fontWeight:700, fontSize:14, cursor:"pointer", fontFamily:"inherit",
+                boxShadow: sourceSize===s ? "0 4px 12px rgba(79,70,229,0.4)" : "none",
+              }}>{s}</button>
+            ))}
+          </div>
+          <p style={{ fontSize:11, color:"#6B7280", marginTop:10, lineHeight:1.5,
+            fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+            {isRTL
+              ? "ہم آپ کے تمام معلوم برانڈز میں سائز دکھائیں گے۔ آپ کا برانڈ جلد شامل کریں گے۔"
+              : "We'll show your equivalent size at all 11 known brands. We'll add your brand to PakFit soon."}
+          </p>
+        </div>
       )}
 
       {/* Translate button */}

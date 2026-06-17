@@ -132,8 +132,8 @@ const T = {
     continue:"Continue", back:"Back", next:"Next",
     measureQ:"How would you like to get your measurements?",
     measureSub:"Choose the method that works best for you",
-    methods:["Upload a photo","I know my measurements","Height & weight only"],
-    methodSubs:["AI detects your measurements","Enter with our visual guide","We estimate from your body stats"],
+    methods:["Enter my measurements"],
+    methodSubs:["Use our visual guide — takes 3 minutes, accurate for life"],
     photoTitle:"Upload Photo", dragDrop:"Drag & drop your photo here",
     orClick:"or click to browse", photoHint:"Stand straight · Full body visible · Good lighting",
     detectBtn:"Detect Measurements", detecting:"Detecting...",
@@ -162,8 +162,8 @@ const T = {
     continue:"آگے بڑھیں", back:"واپس", next:"اگلا",
     measureQ:"پیمائش کیسے لینا چاہتے ہیں؟",
     measureSub:"اپنے لیے بہترین طریقہ منتخب کریں",
-    methods:["تصویر اپلوڈ کریں","پیمائش خود ڈالیں","قد اور وزن"],
-    methodSubs:["AI خود پیمائش لے گا","بصری گائیڈ کے ساتھ ڈالیں","جسمانی اعداد سے اندازہ"],
+    methods:["پیمائش خود ڈالیں"],
+    methodSubs:["بصری گائیڈ کے ساتھ اپنی پیمائش کریں — صرف 3 منٹ، زندگی بھر کام آئے"],
     photoTitle:"تصویر اپلوڈ", dragDrop:"تصویر یہاں گھسیٹیں",
     orClick:"یا کلک کریں", photoHint:"سیدھے کھڑے ہوں · پورا جسم دکھے",
     detectBtn:"پیمائش نکالیں", detecting:"نکال رہے ہیں...",
@@ -187,25 +187,20 @@ const T = {
 };
 
 const GARMENTS = [
-  { value:"Kameez",        label:"Kameez",         labelUr:"کمیز" },
-  { value:"Shalwar Kameez",label:"Shalwar Kameez", labelUr:"شلوار قمیص" },
-  { value:"Shalwar",       label:"Shalwar",         labelUr:"شلوار" },
-  { value:"Kurta",         label:"Kurta Pajama",    labelUr:"کرتہ پاجامہ" },
-  { value:"Waistcoat",     label:"Waistcoat",       labelUr:"واسکٹ" },
+  { value:"Kameez", label:"Kameez / Kurta",           labelUr:"کمیز / کرتہ" },
+  { value:"Shalwar Kameez", label:"Shalwar Kameez / Kurta Pajama", labelUr:"شلوار قمیص / کرتہ پاجامہ" },
+  { value:"Shalwar", label:"Shalwar",                  labelUr:"شلوار" },
 ];
 
 const MEASUREMENT_FIELDS = {
   "Kameez":         ["chest","shoulder","sleeve","collar","length"],
   "Shalwar Kameez": ["chest","shoulder","sleeve","collar","length","waist"],
-  "Kurta":          ["chest","shoulder","sleeve","collar","length","waist"],
-  "Waistcoat":      ["chest","shoulder","length"],
   "Shalwar":        ["waist","length"],
 };
 
 // Labels for combined garments
 const FIELD_SECTIONS = {
   "Shalwar Kameez": { kameez:["chest","shoulder","sleeve","collar","length"], shalwar:["waist"] },
-  "Kurta":          { kameez:["chest","shoulder","sleeve","collar","length"], shalwar:["waist"] },
 };
 
 const FIELD_LABELS = {
@@ -545,27 +540,10 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
     </div>
   );
 
-  if (method === null) return (
-    <div className="fade-up" style={{ direction: isRTL?"rtl":"ltr" }}>
-      <StepDots step={1} total={3}/>
-      <h2 style={{ fontFamily:"'Libre Baskerville',serif", fontSize:22, fontWeight:700, textAlign:"center", marginBottom:8 }}>
-        {t.measureQ}
-      </h2>
-      <p style={{ textAlign:"center", color:"#6B7280", fontSize:14, marginBottom:24 }}>{t.measureSub}</p>
-
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", gap:12, marginBottom:12 }}>
-        {t.methods.map((m,i) => (
-          <div key={i} className="method-card" onClick={() => setMethod(i)}>
-            <div style={{ fontSize:26, marginBottom:10 }}>{icons[i]}</div>
-            <div style={{ fontSize:13, fontWeight:600, marginBottom:4 }}>{m}</div>
-            <div style={{ fontSize:11.5, color:"#6B7280", lineHeight:1.5 }}>{t.methodSubs[i]}</div>
-          </div>
-        ))}
-      </div>
-
-      <button className="btn-ghost" style={{ width:"100%", marginTop:4 }} onClick={onBack}>← {t.back}</button>
-    </div>
-  );
+  if (method === null) {
+    setTimeout(() => setMethod(1), 0);
+    return null;
+  }
 
   // ── Method 0: Photo ─────────────────────────────────────────────────────────
   if (method === 0) return (
@@ -625,9 +603,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
       </div>
 
       <div className="glass" style={{ padding:24 }}>
-        <HeightBlock/>
-
-                {FIELD_SECTIONS[ctx.garment] ? (
+        {FIELD_SECTIONS[ctx.garment] ? (
           <>
             <p style={{ fontSize:11, fontWeight:600, color:"#818CF8", textTransform:"uppercase", letterSpacing:.5, marginBottom:10 }}>
               {ctx.garment === "Shalwar Kameez" ? "Kameez (Upper)" : "Kurta (Upper)"}
@@ -676,9 +652,14 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
         )}
 
         {/* Measurement guide */}
-        <button className="btn-ghost" style={{ width:"100%", marginBottom: showGuide?12:0 }}
+        <button className="btn-ghost" style={{ width:"100%", marginBottom: showGuide?12:0, marginTop:4, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}
           onClick={() => setShowGuide(!showGuide)}>
-          📐 {t.howMeasure} {showGuide?"▲":"▼"}
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+            <line x1="12" y1="22.08" x2="12" y2="12"/>
+          </svg>
+          {t.howMeasure} {showGuide?"▲":"▼"}
         </button>
 
         {showGuide && (
@@ -760,7 +741,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
   useEffect(() => {
     // Cycle loading stages
     const timer = setInterval(() => setLoadStage(s => (s+1) % 3), 1800);
-    const isCombined = ["Shalwar Kameez","Kurta"].includes(ctx.garment);
+    const isCombined = ctx.garment === "Shalwar Kameez";
     const kameezMeasurements = isCombined
       ? Object.fromEntries(Object.entries(measurements).filter(([k])=>k!=="waist"))
       : measurements;
@@ -769,7 +750,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
     const mainCall = axios.post(`${API}/api/recommend-size`, {
       product_url:   ctx.url||"",
       brand:         ctx.brand||"",
-      garment_type:  isCombined ? "Kameez" : ctx.garment,
+      garment_type: isCombined ? "Kameez" : ctx.garment,
       measurements:  kameezMeasurements,
       fit_pref:      ctx.fitPref,
       height_cm:     ctx.heightCm||175,
@@ -829,6 +810,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
       fd.append("person_photo", personPhoto);
       if (garmentPhoto) fd.append("garment_image", garmentPhoto);
       if (ctx.url) fd.append("product_url", ctx.url);
+      fd.append("garment_type", ctx.garment || "Kameez");
       const res = await axios.post(`${API}/api/try-on`, fd, { timeout: 180000 });
       setTryOnResult(res.data.result_path);
     } catch (e) {
@@ -971,10 +953,23 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
           ))}
         </div>
         {result.source === "generic_standard" && (
-          <p style={{ fontSize:12, color:"#F59E0B", marginTop:10, display:"flex", alignItems:"flex-start", gap:6 }}>
-            <span>⚠</span>
-            <span>{t.unknown}</span>
-          </p>
+          <div style={{
+            marginTop:12, padding:"12px 14px",
+            background:"rgba(245,158,11,0.08)",
+            border:"1px solid rgba(245,158,11,0.2)",
+            borderRadius:12,
+            display:"flex", alignItems:"flex-start", gap:10,
+          }}>
+            <span style={{ fontSize:16, flexShrink:0 }}>⚠️</span>
+            <div>
+              <p style={{ fontSize:13, fontWeight:600, color:"#F59E0B", marginBottom:3 }}>
+                Brand not in our database yet
+              </p>
+              <p style={{ fontSize:12, color:"#9CA3AF", lineHeight:1.5 }}>
+                We used the standard Pakistani men's size chart for {result.brand}. Our algorithm still calculated your best fit — accuracy is around 80%.
+              </p>
+            </div>
+          </div>
         )}
       </div>
 
@@ -1035,8 +1030,67 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
 
             {tryOnResult ? (
               <div className="fade-in" style={{ textAlign:"center" }}>
-                <img src={tryOnResult} alt="Try-on result"
-                  style={{ maxWidth:"100%", borderRadius:12, border:"1px solid rgba(79,70,229,0.3)" }}/>
+                <div style={{ position:"relative", display:"inline-block", width:"100%" }}>
+                  <img src={tryOnResult} alt="Try-on result" style={{
+                    maxWidth:"100%", borderRadius:16,
+                    border:"1px solid rgba(79,70,229,0.3)",
+                    boxShadow:"0 8px 32px rgba(79,70,229,0.25)",
+                    display:"block", margin:"0 auto",
+                  }}/>
+                  <div style={{
+                    position:"absolute", top:12, left:12,
+                    background:"rgba(79,70,229,0.85)",
+                    backdropFilter:"blur(8px)",
+                    borderRadius:20, padding:"4px 12px",
+                    fontSize:11, fontWeight:600, color:"#fff",
+                    letterSpacing:"0.5px",
+                  }}>✦ PakFit Try-On</div>
+                </div>
+                <div style={{
+                  marginTop:16, padding:"16px",
+                  background:"rgba(255,255,255,0.04)",
+                  border:"1px solid rgba(255,255,255,0.07)",
+                  borderRadius:16,
+                }}>
+                  <p style={{ fontSize:12, color:"#6B7280", marginBottom:12, fontWeight:500 }}>
+                    Save or share your try-on result
+                  </p>
+                  <div style={{ display:"flex", gap:10 }}>
+                    <a href={tryOnResult} download="PakFit-TryOn.jpg" style={{
+                      flex:1, padding:"12px", borderRadius:12,
+                      background:"linear-gradient(135deg,#4F46E5,#6366F1)",
+                      color:"#fff", textDecoration:"none",
+                      fontSize:13, fontWeight:700,
+                      fontFamily:"'Poppins',sans-serif",
+                      display:"flex", alignItems:"center",
+                      justifyContent:"center", gap:6,
+                      boxShadow:"0 4px 14px rgba(79,70,229,0.4)",
+                    }}>⬇ Download</a>
+                    <button onClick={() => {
+                      const shareText = `I just tried on this outfit virtually using PakFit AI! 🇵🇰👕\n\nGet your perfect size at pakfitv2.netlify.app`;
+                      if (navigator.share) {
+                        fetch(tryOnResult)
+                          .then(r => r.blob())
+                          .then(blob => {
+                            const file = new File([blob], "PakFit-TryOn.jpg", { type:"image/jpeg" });
+                            navigator.share({ files:[file], title:"My PakFit Try-On", text: shareText });
+                          })
+                          .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank"));
+                      } else {
+                        window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+                      }
+                    }} style={{
+                      flex:1, padding:"12px", borderRadius:12,
+                      background:"linear-gradient(135deg,#25D366,#1ebe5d)",
+                      color:"#fff", border:"none",
+                      fontSize:13, fontWeight:700, cursor:"pointer",
+                      fontFamily:"'Poppins',sans-serif",
+                      display:"flex", alignItems:"center",
+                      justifyContent:"center", gap:6,
+                      boxShadow:"0 4px 14px rgba(37,211,102,0.4)",
+                    }}>📱 WhatsApp</button>
+                  </div>
+                </div>
               </div>
             ) : (
               <button className="btn-primary" style={{ width:"100%" }}
