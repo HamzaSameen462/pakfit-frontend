@@ -133,7 +133,7 @@ injectStyles();
 // ── i18n strings ──────────────────────────────────────────────────────────────
 const T = {
   en: {
-    brand:"PakFit", tagline:"Find your perfect fit",
+    brand:"Naapify", tagline:"Find your perfect fit",
     sub:"AI-powered size intelligence for Pakistani Eastern wear",
     urlLabel:"Paste product URL", urlPlaceholder:"https://junaidjamshed.com/products/...",
     garmentLabel:"Garment type", fitLabel:"Fit preference",
@@ -157,13 +157,13 @@ const T = {
     saveSizeCard:"Save your Size Card", yourName:"Your name",
     saveBtn:"Save", saved:"Saved!", shareUrl:"Share URL",
     source:"Source", tryAnother:"Try another brand",
-    loading1:"Scanning size chart...", loading2:"Running PakFit Engine...", loading3:"Generating explanation...",
+    loading1:"Scanning size chart...", loading2:"Running Naapify Engine...", loading3:"Generating explanation...",
     unknown:"Unknown brand — using standard Pakistani size chart",
     urdu:"اردو", english:"English", darkMode:"Dark", lightMode:"Light",
     generic:"Standard Pakistani chart",
   },
   ur: {
-    brand:"پاک فٹ", tagline:"اپنا صحیح سائز تلاش کریں",
+    brand:"ناپ فائی", tagline:"اپنا صحیح سائز تلاش کریں",
     sub:"پاکستانی مشرقی لباس کے لیے AI سائز انٹیلیجنس",
     urlLabel:"پروڈکٹ URL ڈالیں", urlPlaceholder:"https://junaidjamshed.com/products/...",
     garmentLabel:"لباس کی قسم", fitLabel:"فٹ کی ترجیح",
@@ -187,7 +187,7 @@ const T = {
     saveSizeCard:"سائز کارڈ محفوظ کریں", yourName:"آپ کا نام",
     saveBtn:"محفوظ کریں", saved:"ہو گیا!", shareUrl:"شیئر لنک",
     source:"ذریعہ", tryAnother:"دوسرا برانڈ آزمائیں",
-    loading1:"سائز چارٹ اسکین ہو رہا ہے...", loading2:"PakFit Engine چل رہا ہے...", loading3:"وضاحت تیار ہو رہی ہے...",
+    loading1:"سائز چارٹ اسکین ہو رہا ہے...", loading2:"Naapify Engine چل رہا ہے...", loading3:"وضاحت تیار ہو رہی ہے...",
     unknown:"نامعلوم برانڈ — معیاری پاکستانی چارٹ استعمال",
     urdu:"اردو", english:"English", darkMode:"ڈارک", lightMode:"لائٹ",
     generic:"معیاری پاکستانی چارٹ",
@@ -1052,7 +1052,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                     borderRadius:20, padding:"4px 12px",
                     fontSize:11, fontWeight:600, color:"#fff",
                     letterSpacing:"0.5px",
-                  }}>✦ PakFit Try-On</div>
+                  }}>✦ Naapify Try-On</div>
                 </div>
                 <div style={{
                   marginTop:16, padding:"16px",
@@ -1064,7 +1064,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                     Save or share your try-on result
                   </p>
                   <div style={{ display:"flex", gap:10 }}>
-                    <a href={tryOnResult} download="PakFit-TryOn.jpg" style={{
+                    <a href={tryOnResult} download="Naapify-TryOn.jpg" style={{
                       flex:1, padding:"12px", borderRadius:12,
                       background:"linear-gradient(135deg,#4F46E5,#6366F1)",
                       color:"#fff", textDecoration:"none",
@@ -1075,13 +1075,13 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                       boxShadow:"0 4px 14px rgba(79,70,229,0.4)",
                     }}>⬇ Download</a>
                     <button onClick={() => {
-                      const shareText = `I just tried on this outfit virtually using PakFit AI!\n\nGet your perfect size at pakfitv2.netlify.app`;
+                      const shareText = `I just tried on this outfit virtually using PakFit AI!\n\nGet your perfect size at naapify.com`;
                       if (navigator.share) {
                         fetch(tryOnResult)
                           .then(r => r.blob())
                           .then(blob => {
-                            const file = new File([blob], "PakFit-TryOn.jpg", { type:"image/jpeg" });
-                            navigator.share({ files:[file], title:"My PakFit Try-On", text: shareText });
+                            const file = new File([blob], "Naapify-TryOn.jpg", { type:"image/jpeg" });
+                            navigator.share({ files:[file], title:"My Naapify Try-On", text: shareText });
                           })
                           .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank"));
                       } else {
@@ -1135,7 +1135,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
             }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
                 <div>
-                  <p style={{ fontSize:11, color:"#6B7280", marginBottom:3 }}>PakFit Size Card</p>
+                  <p style={{ fontSize:11, color:"#6B7280", marginBottom:3 }}>Naapify Size Card</p>
                   <p style={{ fontSize:18, fontWeight:700, fontFamily:"'Libre Baskerville',serif", color:"#fff" }}>{name}</p>
                 </div>
                 <div style={{
@@ -1187,7 +1187,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                   // PakFit label
                   ctx.fillStyle = "#6B7280";
                   ctx.font = "12px sans-serif";
-                  ctx.fillText("PakFit Size Card", 38, 40);
+                  ctx.fillText("Naapify Size Card", 38, 40);
 
                   // Name
                   ctx.fillStyle = "#FFFFFF";
@@ -1251,7 +1251,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                   ctx.beginPath(); ctx.moveTo(24, 370); ctx.lineTo(656, 370); ctx.stroke();
                   ctx.fillStyle = "#374151";
                   ctx.font = "10px sans-serif";
-                  ctx.fillText("Generated by PakFit  •  pakfit.app", 24, 388);
+                  ctx.fillText("Generated by PakFit  •  naapify.com", 24, 388);
                   ctx.textAlign = "right";
                   ctx.fillText(new Date().toLocaleDateString(), 656, 388);
 
@@ -1259,7 +1259,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                     const url = URL.createObjectURL(blob);
                     const a   = document.createElement("a");
                     a.href = url;
-                    a.download = `PakFit-${name}-SizeCard.png`;
+                    a.download = `Naapify-${name}-SizeCard.png`;
                     a.click();
                     URL.revokeObjectURL(url);
                   }, "image/png");
@@ -1275,7 +1275,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                 onMouseEnter={e=>e.target.style.background="#1ebe5d"}
                 onMouseLeave={e=>e.target.style.background="#25D366"}
                 onClick={() => {
-                  const text = `My PakFit Size Card\n\nName: ${name}\nRecommended size at ${result.brand}: *${result.recommended_size}* (${result.confidence} confidence)\n\nMeasurements:\n${Object.entries(measurements).filter(([k])=>!["method","confidence","note","height_cm","weight_kg"].includes(k)).map(([k,v])=>`${k}: ${v} in`).join("\n")}\n\nFind your size at pakfitv2.netlify.app`;
+                  const text = `My Naapify Size Card\n\nName: ${name}\nRecommended size at ${result.brand}: *${result.recommended_size}* (${result.confidence} confidence)\n\nMeasurements:\n${Object.entries(measurements).filter(([k])=>!["method","confidence","note","height_cm","weight_kg"].includes(k)).map(([k,v])=>`${k}: ${v} in`).join("\n")}\n\nFind your size at naapifyv2.netlify.app`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
                 }}>
                 <span style={{ marginRight:6 }}>📱</span> Share on WhatsApp
@@ -1412,7 +1412,7 @@ function SellerPage({ t, lang, onBack }) {
           {[
             ["🔗", "URL auto-detected", "System reads your product URL and finds the size chart automatically"],
             ["📏", "Smart measurement", "Customers upload a photo or enter measurements manually"],
-            ["✦", "AI size recommendation", "PakFit Engine recommends the correct size with confidence score"],
+            ["✦", "AI size recommendation", "Naapify Engine recommends the correct size with confidence score"],
             ["👕", "Virtual try-on", "Customers see how the garment looks on them before buying"],
           ].map(([icon, title, desc]) => (
             <div key={title} className="glass-sm" style={{ padding:14 }}>
@@ -1457,9 +1457,7 @@ export default function App() {
         {page==="translator" && (
           <SizeTranslator lang={lang} />
         )}
-        {page==="seller" && (
-          <SellerPage t={t} lang={lang} onBack={() => setPage("home")}/>
-        )}
+        
         {page==="home" && step===0 && (
           <S1_URL t={t} lang={lang} isDark={isDark}
             onNext={c => { setCtx(c); go(1); }}/>

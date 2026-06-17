@@ -1,7 +1,7 @@
-// src/components/SizeTranslator.jsx — PakFit v3 — Urdu + User Friendly + Risk Score
+// src/components/SizeTranslator.jsx — Naapify v3 — Urdu + User Friendly + Risk Score
 import { useState, useEffect, useCallback } from "react";
 
-const API = import.meta.env.VITE_API_URL || "https://ham-462-pakfit-backend.hf.space";
+const API = import.meta.env.VITE_API_URL || "https://ham-462-naapify-backend.hf.space";
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const ST = {
@@ -20,7 +20,7 @@ const ST = {
     fromLabel:    "Translating from",
     brandsCount:  (n) => `${n} brands translated`,
     shareBtn:     "Share via WhatsApp",
-    footer:       "PakFit Engine v1 · Computed from real measurements",
+    footer:       "Naapify Engine v1 · Computed from real measurements",
     showDetails:  "Show details",
     hideDetails:  "Hide details",
     runnerUp:     "Runner-up",
@@ -44,7 +44,7 @@ const ST = {
       slim:       "Slightly slim",
       comfort:    "Comfortable room",
     },
-    garments: ["Kameez","Kurta","Shalwar","Waistcoat"],
+    garments: ["Kameez","Kurta","Shalwar"],
   },
   ur: {
     badge:        "تمام برانڈز کا موازنہ",
@@ -61,7 +61,7 @@ const ST = {
     fromLabel:    "ترجمہ ہو رہا ہے",
     brandsCount:  (n) => `${n} برانڈز کا ترجمہ`,
     shareBtn:     "واٹس ایپ پر شیئر کریں",
-    footer:       "PakFit Engine v1 · حقیقی پیمائش سے حساب",
+    footer:       "Naapify Engine v1 · حقیقی پیمائش سے حساب",
     showDetails:  "تفصیل دیکھیں",
     hideDetails:  "تفصیل چھپائیں",
     runnerUp:     "متبادل سائز",
@@ -89,7 +89,7 @@ const ST = {
   },
 };
 
-const GARMENT_VALUES = ["Kameez","Kurta","Shalwar","Waistcoat"];
+const GARMENT_VALUES = ["Kameez","Kurta","Shalwar"];
 
 // ── Risk engine ───────────────────────────────────────────────────────────────
 function getRisk(score, fitType, runnerUpScore, lang) {
@@ -384,7 +384,7 @@ export default function SizeTranslator({ lang: propLang }) {
   const handleShare = () => {
     if (!result) return;
     const lines = [
-      `🇵🇰 PakFit ${st.title} — ${result.source.garment_type}`,
+      `🇵🇰 Naapify ${st.title} — ${result.source.garment_type}`,
       `${result.source.brand} ${result.source.size}`,
       "",
       ...result.translations.map(t =>
@@ -395,11 +395,11 @@ export default function SizeTranslator({ lang: propLang }) {
       "",
       result.insight || "",
       "",
-      "PakFit — pakfit.app",
+      "Naapify — naapify.app",
     ].join("\n");
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) && /Mobi/i.test(navigator.userAgent);
     if (isMobile && navigator.share) {
-      navigator.share({ title:`PakFit ${st.title}`, text:lines })
+      navigator.share({ title:`Naapify ${st.title}`, text:lines })
         .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(lines)}`, "_blank"));
     } else {
       window.open(`https://wa.me/?text=${encodeURIComponent(lines)}`, "_blank");
@@ -556,7 +556,7 @@ export default function SizeTranslator({ lang: propLang }) {
             fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
             {isRTL
               ? "ہم آپ کے تمام معلوم برانڈز میں سائز دکھائیں گے۔ آپ کا برانڈ جلد شامل کریں گے۔"
-              : "We'll show your equivalent size at all 11 known brands. We'll add your brand to PakFit soon."}
+              : "We'll show your equivalent size at all 11 known brands. We'll add your brand to Naapify soon."}
           </p>
         </div>
       )}
