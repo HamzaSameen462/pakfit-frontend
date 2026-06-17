@@ -319,7 +319,7 @@ function Header({ lang, setLang, t, setPage, page }) {
           width:30, height:30, borderRadius:8, background:"#4F46E5",
           display:"flex", alignItems:"center", justifyContent:"center",
           fontFamily:"'Libre Baskerville',serif", fontSize:15, fontWeight:700, color:"#fff",
-        }}>P</div>
+        }}>N</div>
         <span style={{ fontFamily:"'Libre Baskerville',serif", fontSize:17, fontWeight:700, letterSpacing:"-0.3px" }}>
           {t.brand}
         </span>

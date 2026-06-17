@@ -1,7 +1,7 @@
 // src/components/SizeTranslator.jsx — Naapify v3 — Urdu + User Friendly + Risk Score
 import { useState, useEffect, useCallback } from "react";
 
-const API = import.meta.env.VITE_API_URL || "https://ham-462-naapify-backend.hf.space";
+const API = import.meta.env.VITE_API_URL || "https://ham-462-pakfit-backend.hf.space";
 
 // ── i18n ──────────────────────────────────────────────────────────────────────
 const ST = {
