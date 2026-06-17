@@ -19,7 +19,7 @@ const ST = {
     loading:      "Loading…",
     fromLabel:    "Translating from",
     brandsCount:  (n) => `${n} brands translated`,
-    shareBtn:     "📤 Share via WhatsApp",
+    shareBtn:     "Share via WhatsApp",
     footer:       "PakFit Engine v1 · Computed from real measurements",
     showDetails:  "Show details",
     hideDetails:  "Hide details",
@@ -60,7 +60,7 @@ const ST = {
     loading:      "لوڈ ہو رہا ہے…",
     fromLabel:    "ترجمہ ہو رہا ہے",
     brandsCount:  (n) => `${n} برانڈز کا ترجمہ`,
-    shareBtn:     "📤 واٹس ایپ پر شیئر کریں",
+    shareBtn:     "واٹس ایپ پر شیئر کریں",
     footer:       "PakFit Engine v1 · حقیقی پیمائش سے حساب",
     showDetails:  "تفصیل دیکھیں",
     hideDetails:  "تفصیل چھپائیں",
@@ -397,8 +397,13 @@ export default function SizeTranslator({ lang: propLang }) {
       "",
       "PakFit — pakfit.app",
     ].join("\n");
-    if (navigator.share) navigator.share({ title:`PakFit ${st.title}`, text:lines });
-    else navigator.clipboard.writeText(lines).then(() => alert(lang==="ur" ? "کاپی ہو گیا!" : "Copied! Paste in WhatsApp."));
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    if (isMobile && navigator.share) {
+      navigator.share({ title:`PakFit ${st.title}`, text:lines })
+        .catch(() => window.open(`https://wa.me/?text=${encodeURIComponent(lines)}`, "_blank"));
+    } else {
+      window.open(`https://wa.me/?text=${encodeURIComponent(lines)}`, "_blank");
+    }
   };
 
   const canTranslate = sourceBrand && sourceSize && !loading;
@@ -657,15 +662,28 @@ export default function SizeTranslator({ lang: propLang }) {
             onClick={handleShare}
             style={{
               marginTop:16, width:"100%", padding:14, borderRadius:12,
-              border:"1px solid rgba(79,70,229,0.3)",
-              background:"rgba(79,70,229,0.08)", color:"#818CF8",
-              fontSize:14, fontWeight:600, cursor:"pointer",
+              border:"none", background:"#25D366", color:"#fff",
+              fontSize:14, fontWeight:700, cursor:"pointer",
               fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
-              transition:"all .2s",
+              transition:"all .25s cubic-bezier(0.34,1.56,0.64,1)",
+              display:"flex", alignItems:"center", justifyContent:"center", gap:8,
+              boxShadow:"0 4px 14px rgba(37,211,102,0.3)",
             }}
-            onMouseEnter={e => { e.currentTarget.style.background="rgba(79,70,229,0.15)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background="rgba(79,70,229,0.08)"; }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background="#1ebe5d";
+              e.currentTarget.style.transform="translateY(-2px)";
+              e.currentTarget.style.boxShadow="0 8px 24px rgba(37,211,102,0.5)";
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background="#25D366";
+              e.currentTarget.style.transform="translateY(0)";
+              e.currentTarget.style.boxShadow="0 4px 14px rgba(37,211,102,0.3)";
+            }}
           >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.498 14.382c-.301-.151-1.767-.867-2.04-.966-.273-.099-.473-.148-.673.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-1.746-.872-2.888-1.554-4.035-3.524-.305-.524.305-.487.873-1.62.099-.198.05-.371-.025-.52-.075-.149-.667-1.612-.916-2.21-.241-.579-.487-.5-.667-.51-.173-.008-.371-.01-.571-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.463 1.065 2.876 1.213 3.074.149.198 2.04 3.121 4.946 4.249 2.906 1.129 2.906.752 3.43.703.524-.05 1.692-.69 1.93-1.357.238-.667.238-1.238.165-1.357-.074-.119-.272-.198-.57-.347z"/>
+              <path d="M12.04 2c-5.523 0-10 4.477-10 10 0 1.77.464 3.434 1.276 4.876L2 22l5.236-1.276A9.953 9.953 0 0012.04 22c5.523 0 10-4.477 10-10s-4.477-10-10-10zm0 18.182a8.16 8.16 0 01-4.16-1.142l-.298-.177-3.09.752.752-3.014-.198-.31a8.181 8.181 0 01-1.215-4.291c0-4.518 3.665-8.182 8.21-8.182 4.546 0 8.21 3.664 8.21 8.182 0 4.517-3.665 8.182-8.21 8.182z"/>
+            </svg>
             {st.shareBtn}
           </button>
 

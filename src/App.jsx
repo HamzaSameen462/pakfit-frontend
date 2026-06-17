@@ -58,6 +58,14 @@ const injectStyles = () => {
     .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.15) 0%,transparent 60%);opacity:0;transition:opacity .3s}
     .btn-primary:hover::after{opacity:1}
 
+    .btn-pakfit-primary{background:#4F46E5;color:#fff;border:none;border-radius:12px;padding:13px 24px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 14px rgba(79,70,229,0.3);display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-pakfit-primary:hover:not(:disabled){background:#6366F1;transform:translateY(-2px);box-shadow:0 8px 24px rgba(79,70,229,0.5)}
+    .btn-pakfit-primary:active:not(:disabled){transform:translateY(0) scale(0.98)}
+    .btn-pakfit-primary:disabled{background:rgba(255,255,255,0.05);color:#4B5563;cursor:not-allowed;box-shadow:none}
+    .btn-pakfit-whatsapp{background:#25D366;color:#fff;border:none;border-radius:12px;padding:13px 24px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .25s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 4px 14px rgba(37,211,102,0.3);display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn-pakfit-whatsapp:hover{background:#1ebe5d;transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,211,102,0.5)}
+    .btn-pakfit-whatsapp:active{transform:translateY(0) scale(0.98)}
+
     .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:9px 18px;font-family:'Poppins',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .25s ease;color:#9CA3AF}
     .light .btn-ghost{border-color:rgba(0,0,0,0.12);color:#6B7280}
     .btn-ghost:hover{border-color:#4F46E5;color:#818CF8;background:rgba(79,70,229,0.08)}
@@ -319,7 +327,7 @@ function Header({ lang, setLang, t, setPage, page }) {
       <div style={{ display:"flex", alignItems:"center", gap:24 }}>
         <button className={`nav-link ${page==="translator" ? "active-nav" : ""}`}
           onClick={() => setPage("translator")}>
-          🔄 Size Translator
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{display:"inline-block", marginRight:6, verticalAlign:"middle"}}><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 0 1 4-4h12.4"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 0 1-4 4H4.6"/></svg>Size Translator
         </button>
         <button className={`nav-link ${page==="seller" ? "active-nav" : ""}`}
           onClick={() => setPage("seller")}>
@@ -444,7 +452,7 @@ function S1_URL({ t, lang, isDark, onNext }) {
           </div>
         </div>
 
-        <button className="btn-primary" style={{ width:"100%" }}
+        <button className="btn-pakfit-primary" style={{ width:"100%" }}
           onClick={() => onNext({ url, brand: detected||"", garment, fitPref })}>
           {t.continue} →
         </button>
@@ -585,7 +593,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
 
         {error && <p className="fade-in" style={{ color:"#F87171", fontSize:13, marginBottom:12 }}>⚠ {error}</p>}
 
-        <button className="btn-primary" style={{ width:"100%" }}
+        <button className="btn-pakfit-primary" style={{ width:"100%" }}
           disabled={!photo||loading} onClick={doPhotoMeasure}>
           {loading ? <span style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}><Spinner/> {t.detecting}</span> : t.detectBtn}
         </button>
@@ -652,7 +660,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
         )}
 
         {/* Measurement guide */}
-        <button className="btn-ghost" style={{ width:"100%", marginBottom: showGuide?12:0, marginTop:4, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}
+        <button className="btn-ghost" style={{ width:"100%", marginBottom:16, marginTop:4, display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}
           onClick={() => setShowGuide(!showGuide)}>
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
@@ -678,7 +686,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
 
         {error && <p className="fade-in" style={{ color:"#F87171", fontSize:13, marginBottom:12 }}>⚠ {error}</p>}
 
-        <button className="btn-primary" style={{ width:"100%" }}
+        <button className="btn-pakfit-primary" style={{ width:"100%" }}
           onClick={doManual}>{t.continue} →</button>
       </div>
     </div>
@@ -707,7 +715,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
 
         {error && <p className="fade-in" style={{ color:"#F87171", fontSize:13, marginBottom:12 }}>⚠ {error}</p>}
 
-        <button className="btn-primary" style={{ width:"100%" }}
+        <button className="btn-pakfit-primary" style={{ width:"100%" }}
           disabled={loading} onClick={doHW}>
           {loading ? <span style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}><Spinner/> Working...</span> : t.estimateBtn+" →"}
         </button>
@@ -863,7 +871,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
     <div className="glass fade-up" style={{ padding:32, textAlign:"center" }}>
       <div style={{ fontSize:36, marginBottom:12 }}>⚠️</div>
       <p style={{ color:"#F87171", marginBottom:20, fontSize:14 }}>{error}</p>
-      <button className="btn-primary" onClick={onReset}>Try Again</button>
+      <button className="btn-pakfit-primary" onClick={onReset}>Try Again</button>
     </div>
   );
 
@@ -977,7 +985,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
       <div className="glass" style={{ padding:22, marginBottom:14 }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom: showTryOn?16:0 }}>
           <div>
-            <p style={{ fontSize:14, fontWeight:600 }}>👕 {t.tryOnTitle}</p>
+            <p style={{ fontSize:14, fontWeight:600, display:"flex", alignItems:"center", gap:8 }}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>{t.tryOnTitle}</p>
             <p style={{ fontSize:12, color:"#6B7280", marginTop:2 }}>{t.tryOnSub}</p>
           </div>
           <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }}
@@ -1067,7 +1075,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                       boxShadow:"0 4px 14px rgba(79,70,229,0.4)",
                     }}>⬇ Download</a>
                     <button onClick={() => {
-                      const shareText = `I just tried on this outfit virtually using PakFit AI! 🇵🇰👕\n\nGet your perfect size at pakfitv2.netlify.app`;
+                      const shareText = `I just tried on this outfit virtually using PakFit AI!\n\nGet your perfect size at pakfitv2.netlify.app`;
                       if (navigator.share) {
                         fetch(tryOnResult)
                           .then(r => r.blob())
@@ -1093,7 +1101,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                 </div>
               </div>
             ) : (
-              <button className="btn-primary" style={{ width:"100%" }}
+              <button className="btn-pakfit-primary" style={{ width:"100%" }}
                 disabled={!personPhoto||tryOnLoading} onClick={handleTryOn}>
                 {tryOnLoading
                   ? <span style={{ display:"flex",alignItems:"center",justifyContent:"center",gap:8 }}><Spinner/> {t.generating}</span>
@@ -1112,7 +1120,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
           <div style={{ display:"flex", gap:8 }}>
             <input className="inp" value={name} onChange={e=>setName(e.target.value)}
               placeholder={t.yourName} style={{ flex:1 }}/>
-            <button className="btn-primary" onClick={handleSave}
+            <button className="btn-pakfit-primary" onClick={handleSave}
               disabled={saveLoading||!name.trim()}>
               {saveLoading?<Spinner size={16}/>:t.saveBtn}
             </button>
@@ -1267,7 +1275,7 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                 onMouseEnter={e=>e.target.style.background="#1ebe5d"}
                 onMouseLeave={e=>e.target.style.background="#25D366"}
                 onClick={() => {
-                  const text = `My PakFit Size Card 👕\n\nName: ${name}\nRecommended size at ${result.brand}: *${result.recommended_size}* (${result.confidence} confidence)\n\nMeasurements:\n${Object.entries(measurements).filter(([k])=>!["method","confidence","note","height_cm","weight_kg"].includes(k)).map(([k,v])=>`${k}: ${v} in`).join("\n")}\n\nFind your size at pakfit.app`;
+                  const text = `My PakFit Size Card\n\nName: ${name}\nRecommended size at ${result.brand}: *${result.recommended_size}* (${result.confidence} confidence)\n\nMeasurements:\n${Object.entries(measurements).filter(([k])=>!["method","confidence","note","height_cm","weight_kg"].includes(k)).map(([k,v])=>`${k}: ${v} in`).join("\n")}\n\nFind your size at pakfitv2.netlify.app`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
                 }}>
                 <span style={{ marginRight:6 }}>📱</span> Share on WhatsApp
@@ -1351,7 +1359,7 @@ function SellerPage({ t, lang, onBack }) {
           border:"1px solid rgba(79,70,229,0.2)",
           overflowX:"auto",
         }}>{scriptTag}</div>
-        <button className="btn-primary" onClick={handleCopy} style={{ width:"100%" }}>
+        <button className="btn-pakfit-primary" onClick={handleCopy} style={{ width:"100%" }}>
           {copied ? "✓ Copied to clipboard" : "Copy script tag"}
         </button>
       </div>
