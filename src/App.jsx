@@ -329,10 +329,7 @@ function Header({ lang, setLang, t, setPage, page }) {
           onClick={() => setPage("translator")}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{display:"inline-block", marginRight:6, verticalAlign:"middle"}}><path d="M17 2.1l4 4-4 4"/><path d="M3 12.6v-2a4 4 0 0 1 4-4h12.4"/><path d="M7 21.9l-4-4 4-4"/><path d="M21 11.4v2a4 4 0 0 1-4 4H4.6"/></svg>Size Translator
         </button>
-        <button className={`nav-link ${page==="seller" ? "active-nav" : ""}`}
-          onClick={() => setPage("seller")}>
-          Seller Integration
-        </button>
+
         <div style={{ display:"flex", alignItems:"center", gap:8, direction:"ltr" }}>
           <span style={{ fontSize:12, fontWeight: lang==="en" ? 600 : 400, color: lang==="en" ? "#818CF8" : "#6B7280", transition:"color 0.3s" }}>EN</span>
           <div onClick={() => setLang(lang==="en" ? "ur" : "en")} style={{
