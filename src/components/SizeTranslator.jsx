@@ -44,7 +44,7 @@ const ST = {
       slim:       "Slightly slim",
       comfort:    "Comfortable room",
     },
-    garments: ["Kameez","Kurta","Shalwar"],
+    garments: ["Kameez / Kurta","Shalwar Kameez","Shalwar"],
   },
   ur: {
     badge:        "تمام برانڈز کا موازنہ",
@@ -85,11 +85,11 @@ const ST = {
       slim:       "قدرے تنگ",
       comfort:    "آرام دہ گنجائش",
     },
-    garments: ["کمیز","کرتہ","شلوار","واسکٹ"],
+    garments: ["کمیز / کرتہ","شلوار قمیص","شلوار"],
   },
 };
 
-const GARMENT_VALUES = ["Kameez","Kurta","Shalwar"];
+const GARMENT_VALUES = ["Kameez","Shalwar Kameez","Shalwar"];
 
 // ── Risk engine ───────────────────────────────────────────────────────────────
 function getRisk(score, fitType, runnerUpScore, lang) {
@@ -236,7 +236,7 @@ function BrandCard({ t: translation, index, lang }) {
           onClick={() => setOpen(!open)}
           style={{
             marginTop:10, background:"none", border:"none",
-            color:"#4F46E5", fontSize:12, cursor:"pointer",
+            color:"#D1D5DB", fontSize:12, cursor:"pointer",
             padding:0, fontWeight:600, fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
             display:"flex", alignItems:"center", gap:4,
           }}
@@ -280,7 +280,7 @@ function BrandCard({ t: translation, index, lang }) {
                   {["Size", st.details.confidence, st.details.fitType].map(h => (
                     <th key={h} style={{
                       padding:"4px 6px", textAlign: isRTL ? "right" : "left",
-                      color:"#4F46E5", fontWeight:600, fontSize:11,
+                      color:"#D1D5DB", fontWeight:600, fontSize:11,
                       borderBottom:"1px solid rgba(79,70,229,0.15)",
                       fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
                     }}>{h}</th>
@@ -293,10 +293,10 @@ function BrandCard({ t: translation, index, lang }) {
                     <td style={{ padding:"6px 6px", color: i===0?"#fff":"#6B7280", fontWeight: i===0?700:400 }}>
                       {s.size}{i===0?" ✓":""}
                     </td>
-                    <td style={{ padding:"6px 6px", color: s.score>=88?"#818CF8":s.score>=72?"#A78BFA":"#6B7280", fontWeight:600 }}>
+                    <td style={{ padding:"6px 6px", color: s.score>=88?"#FFFFFF":s.score>=72?"#D1D5DB":"#9CA3AF", fontWeight:600 }}>
                       {Math.round(s.score)}%
                     </td>
-                    <td style={{ padding:"6px 6px", color:"#6B7280", fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
+                    <td style={{ padding:"6px 6px", color:"#9CA3AF", fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit" }}>
                       {getFitLabel(s.fit_type, lang)}
                     </td>
                   </tr>
@@ -322,7 +322,7 @@ function DetailPill({ label, value, color, isRTL }) {
         fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
       }}>{label}</div>
       <div style={{
-        fontSize:13, color, fontWeight:600,
+        fontSize:13, color:"#F1F1F3", fontWeight:600,
         fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
       }}>{value}</div>
     </div>
@@ -647,7 +647,7 @@ export default function SizeTranslator({ lang: propLang }) {
           </div>
 
           <div style={{
-            fontSize:12, color:"#4B5563", marginBottom:10, fontWeight:600,
+            fontSize:12, color:"#9CA3AF", marginBottom:10, fontWeight:600,
             fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
           }}>
             {st.brandsCount(result.translations.length)}

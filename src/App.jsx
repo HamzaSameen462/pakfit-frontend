@@ -777,11 +777,24 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
     Promise.all(calls).then(([kameezRes, shalwarRes]) => {
       const combined = { ...kameezRes.data };
       if (shalwarRes) {
-        combined.shalwar_recommendation = {
-          recommended_size: shalwarRes.data.recommended_size,
-          confidence:       shalwarRes.data.confidence,
-          fitscore:         shalwarRes.data.fitscore,
-        };
+        const kSizes = kameezRes.data.all_sizes || [];
+        const sSizes = shalwarRes.data.all_sizes || [];
+        const sMap = {};
+        sSizes.forEach(s => { sMap[s.size] = s.score; });
+        const unified = kSizes.map(k => ({
+          size: k.size,
+          score: Math.round(0.85 * k.score + 0.15 * (sMap[k.size] || 0)),
+        })).sort((a, b) => b.score - a.score);
+        if (unified.length > 0) {
+          combined.recommended_size = unified[0].size;
+          combined.confidence = unified[0].score + "% confidence";
+          combined.fitscore = unified[0].score;
+          combined.all_sizes = unified;
+          combined.shalwar_note = kameezRes.data.recommended_size !== shalwarRes.data.recommended_size
+            ? "Shalwar length optimised for this size. Waist adjustable via naara."
+            : null;
+        }
+        combined.shalwar_recommendation = null;
       }
       setResult(combined);
       setLoading(false);
