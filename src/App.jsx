@@ -202,25 +202,25 @@ const GARMENTS = [
 
 const MEASUREMENT_FIELDS = {
   "Kameez":         ["chest","shoulder","sleeve","collar","length"],
-  "Shalwar Kameez": ["chest","shoulder","sleeve","collar","length","waist"],
-  "Shalwar":        ["waist","length"],
+  "Shalwar Kameez": ["chest","shoulder","sleeve","collar","length"],
+  "Shalwar":        ["length"],
 };
 
 // Labels for combined garments
 const FIELD_SECTIONS = {
-  "Shalwar Kameez": { kameez:["chest","shoulder","sleeve","collar","length"], shalwar:["waist"] },
+  "Shalwar Kameez": { kameez:["chest","shoulder","sleeve","collar","length"], shalwar:["shalwar_length"] },
 };
 
 const FIELD_LABELS = {
   chest:"Chest", shoulder:"Shoulder", sleeve:"Sleeve Length",
-  collar:"Collar", length:"Front Length", waist:"Waist",
+  collar:"Collar", length:"Front Length", waist:"Waist", shalwar_length:"Shalwar Length",
 };
 const FIELD_LABELS_UR = {
   chest:"سینہ", shoulder:"کندھا", sleeve:"آستین",
-  collar:"کالر", length:"لمبائی", waist:"کمر",
+  collar:"کالر", length:"لمبائی", waist:"کمر", shalwar_length:"شلوار لمبائی",
 };
 const FIELD_ICONS = {
-  chest:"C", shoulder:"S", sleeve:"SL", collar:"CO", length:"L", waist:"W",
+  chest:"C", shoulder:"S", sleeve:"SL", collar:"CO", length:"L", waist:"W", shalwar_length:"SL",
 };
 const FIELD_GUIDE = {
   chest:  "Wrap tape around fullest part of chest. Keep snug but not tight.",
@@ -229,6 +229,7 @@ const FIELD_GUIDE = {
   collar: "Around your neck at the base. Keep one finger gap.",
   length: "From top of shoulder down to where you want the garment to end.",
   waist:  "Around your natural waistline — the narrowest part of your torso.",
+  shalwar_length: "From waistband to ankle bone. Stand straight with feet together.",
 };
 const FIELD_GUIDE_UR = {
   chest:    "سینے کے چوڑے حصے کے گرد فیتہ لپیٹیں۔ نہ بہت ڈھیلا نہ بہت تنگ۔",
@@ -237,6 +238,7 @@ const FIELD_GUIDE_UR = {
   collar:   "گردن کی بنیاد کے گرد ناپیں۔ ایک انگلی کا فاصلہ رکھیں۔",
   length:   "کندھے کے اوپر سے نیچے تک جہاں کمیز ختم ہو۔",
   waist:    "قدرتی کمر کے گرد — جسم کا سب سے تنگ حصہ۔",
+  shalwar_length: "کمربند سے ٹخنے کی ہڈی تک۔ سیدھے کھڑے ہو کر ناپیں۔",
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -626,7 +628,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
               ))}
             </div>
             <p style={{ fontSize:11, fontWeight:600, color:"#818CF8", textTransform:"uppercase", letterSpacing:.5, marginBottom:10 }}>
-              Shalwar (Lower)
+              Shalwar Length
             </p>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:16 }}>
               {FIELD_SECTIONS[ctx.garment].shalwar.map(f => (
