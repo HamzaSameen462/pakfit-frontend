@@ -304,7 +304,7 @@ function StepDots({ step, total }) {
 }
 
 // ── Header ────────────────────────────────────────────────────────────────────
-function Header({ lang, setLang, t, setPage, page }) {
+function Header({ lang, setLang, t, setPage, page, onLogoClick }) {
   return (
     <header style={{
       position:"fixed", top:0, left:0, right:0, zIndex:200,
@@ -316,7 +316,7 @@ function Header({ lang, setLang, t, setPage, page }) {
       direction:"ltr",
     }}>
       <div style={{ display:"flex", alignItems:"center", gap:10, cursor:"pointer" }}
-        onClick={() => setPage("home")}>
+        onClick={() => { if(onLogoClick) onLogoClick(); setPage("home"); }}>
         <div style={{
           width:30, height:30, borderRadius:8, background:"#4F46E5",
           display:"flex", alignItems:"center", justifyContent:"center",
@@ -558,7 +558,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
       <StepDots step={1} total={3}/>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
         <h2 style={{ fontFamily:"'Libre Baskerville',serif", fontSize:20, fontWeight:700 }}>{t.photoTitle}</h2>
-        <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }} onClick={() => {setMethod(null);setError("")}}>← {t.back}</button>
+        <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }} onClick={onBack}>← {t.back}</button>
       </div>
 
       <div className="glass" style={{ padding:24 }}>
@@ -606,7 +606,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
       <StepDots step={1} total={3}/>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
         <h2 style={{ fontFamily:"'Libre Baskerville',serif", fontSize:20, fontWeight:700 }}>{t.manualTitle}</h2>
-        <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }} onClick={() => {setMethod(null);setError("")}}>← {t.back}</button>
+        <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }} onClick={onBack}>← {t.back}</button>
       </div>
 
       <div className="glass" style={{ padding:24 }}>
@@ -697,7 +697,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
       <StepDots step={1} total={3}/>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:20 }}>
         <h2 style={{ fontFamily:"'Libre Baskerville',serif", fontSize:20, fontWeight:700 }}>{t.hwTitle}</h2>
-        <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }} onClick={() => {setMethod(null);setError("")}}>← {t.back}</button>
+        <button className="btn-ghost" style={{ padding:"7px 14px", fontSize:12 }} onClick={onBack}>← {t.back}</button>
       </div>
 
       <div className="glass" style={{ padding:24 }}>
@@ -1297,7 +1297,10 @@ function S3_Result({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
         )}
       </div>
 
-      <button className="btn-ghost" style={{ width:"100%" }} onClick={onReset}>← {t.tryAnother}</button>
+      <div style={{ display:"flex", gap:10, marginTop:8 }}>
+        <button className="btn-ghost" style={{ flex:1 }} onClick={onBack}>← {lang==="ur" ? "واپس" : "Back"}</button>
+        <button className="btn-ghost" style={{ flex:1 }} onClick={onReset}>↺ {t.tryAnother}</button>
+      </div>
     </div>
   );
 }
@@ -1459,7 +1462,8 @@ export default function App() {
   return (
     <div style={{ minHeight:"100vh", direction: lang==="ur"?"rtl":"ltr" }}>
       <AnimatedBg isDark={isDark}/>
-      <Header lang={lang} setLang={setLang} t={t} setPage={setPage} page={page}/>
+      <Header lang={lang} setLang={setLang} t={t} setPage={setPage} page={page}
+        onLogoClick={() => { setStep(0); setCtx({}); setMeasData({}); }}/>
 
       <main style={{
         position:"relative", zIndex:1,
