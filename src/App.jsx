@@ -112,8 +112,8 @@ const injectStyles = () => {
     .light .mode-toggle-thumb{left:23px;background:#4F46E5}
 
     /* Graphic measurement guide */
-    .measure-guide{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-    .measure-item{padding:10px;border-radius:10px;display:flex;align-items:flex-start;gap:8px}
+    .measure-guide{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}
+    .measure-item{padding:14px;border-radius:12px;display:flex;align-items:center;gap:14px}
     .dark .measure-item{background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06)}
     .light .measure-item{background:rgba(255,255,255,0.6);border:1px solid rgba(0,0,0,0.07)}
     .measure-icon{width:28px;height:28px;border-radius:8px;background:rgba(79,70,229,0.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
@@ -220,7 +220,55 @@ const FIELD_LABELS_UR = {
   collar:"کالر", length:"لمبائی", waist:"کمر", shalwar_length:"شلوار لمبائی",
 };
 const FIELD_ICONS = {
-  chest:"C", shoulder:"S", sleeve:"SL", collar:"CO", length:"L", waist:"W", shalwar_length:"SL",
+  chest: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="#818CF8" opacity=".3"/>
+    <path d="M24 8c-2 0-3.5 1-5 3l-4 5v10h18V16l-4-5c-1.5-2-3-3-5-3z" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <path d="M13 22h22" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 2"/>
+    <path d="M11 20v4M37 20v4" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+    <text x="24" y="44" textAnchor="middle" fill="#818CF8" fontSize="7" fontWeight="600">CHEST</text>
+  </svg>,
+  shoulder: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 8a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" fill="#818CF8" opacity=".3"/>
+    <path d="M24 8c-2 0-3.5 1-5 3l-4 5v10h18V16l-4-5c-1.5-2-3-3-5-3z" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <path d="M11 14h26" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 2"/>
+    <path d="M11 12v4M37 12v4" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+    <text x="24" y="44" textAnchor="middle" fill="#818CF8" fontSize="6" fontWeight="600">SHOULDER</text>
+  </svg>,
+  sleeve: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M18 6c-3 2-6 6-8 12l-2 8" stroke="#818CF8" strokeWidth="1.5" strokeLinecap="round" fill="none"/>
+    <path d="M18 4a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="#818CF8" opacity=".3"/>
+    <path d="M18 4c-1.5 0-2.5 1-3.5 2.5" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <path d="M15 7L8 26" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 2"/>
+    <circle cx="8" cy="26" r="2" fill="#F59E0B" opacity=".5"/>
+    <circle cx="15" cy="7" r="2" fill="#F59E0B" opacity=".5"/>
+    <text x="24" y="44" textAnchor="middle" fill="#818CF8" fontSize="6" fontWeight="600">SLEEVE</text>
+  </svg>,
+  collar: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 14a6 6 0 1 0 0-12 6 6 0 0 0 0 12z" fill="#818CF8" opacity=".15"/>
+    <ellipse cx="24" cy="14" rx="8" ry="3" stroke="#F59E0B" strokeWidth="2.5" strokeDasharray="3 2" fill="none"/>
+    <path d="M24 17c-2 0-3.5 1-5 3l-3 4v6h16v-6l-3-4c-1.5-2-3-3-5-3z" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <text x="24" y="44" textAnchor="middle" fill="#818CF8" fontSize="6" fontWeight="600">COLLAR</text>
+  </svg>,
+  length: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="#818CF8" opacity=".3"/>
+    <path d="M24 6c-2 0-3 1-4.5 3L16 14v20h16V14l-3.5-5C27 7 26 6 24 6z" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <path d="M34 8v26" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 2"/>
+    <path d="M32 8h4M32 34h4" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+    <text x="24" y="44" textAnchor="middle" fill="#818CF8" fontSize="6" fontWeight="600">LENGTH</text>
+  </svg>,
+  waist: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M24 6a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" fill="#818CF8" opacity=".3"/>
+    <path d="M24 6c-2 0-3 1-4.5 3L16 14v20h16V14l-3.5-5C27 7 26 6 24 6z" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <path d="M14 22h20" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 2"/>
+    <path d="M14 20v4M34 20v4" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+    <text x="24" y="44" textAnchor="middle" fill="#818CF8" fontSize="6" fontWeight="600">WAIST</text>
+  </svg>,
+  shalwar_length: <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M20 2h8v6l2 20v8h-4v-6h-4v6h-4v-8l2-20z" stroke="#818CF8" strokeWidth="1.5" fill="none"/>
+    <path d="M36 4v32" stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 2"/>
+    <path d="M34 4h4M34 36h4" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round"/>
+    <text x="20" y="46" textAnchor="middle" fill="#818CF8" fontSize="5" fontWeight="600">SHALWAR</text>
+  </svg>,
 };
 const FIELD_GUIDE = {
   chest:  "Wrap tape around fullest part of chest. Keep snug but not tight.",
@@ -673,7 +721,7 @@ function S2_Method({ t, lang, isDark, ctx, onNext, onBack }) {
           <div className="fade-in measure-guide" style={{ marginBottom:16, direction:"ltr" }}>
             {fields.map(f => (
               <div key={f} className="measure-item">
-                <div className="measure-icon" style={{ fontFamily:"'Libre Baskerville',serif", fontSize:11, fontWeight:700, color:"#818CF8" }}>{FIELD_ICONS[f]}</div>
+                <div className="measure-icon" style={{ flexShrink:0, width:48, height:48 }}>{FIELD_ICONS[f]}</div>
                 <div>
                   <div style={{ fontSize:11.5, fontWeight:600, color:"#818CF8", marginBottom:2 }}>{FIELD_LABELS[f]}</div>
                   <div style={{ fontSize:11, color:"#6B7280", lineHeight:1.5 }}>{lang==="ur" ? FIELD_GUIDE_UR[f] : FIELD_GUIDE[f]}</div>
