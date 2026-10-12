@@ -330,7 +330,7 @@ function DetailPill({ label, value, color, isRTL }) {
 }
 
 // ── Main component ────────────────────────────────────────────────────────────
-export default function SizeTranslator({ lang: propLang }) {
+export default function SizeTranslator({ lang: propLang, onHome }) {
   const lang   = propLang || "en";
   const st     = ST[lang];
   const isRTL  = lang === "ur";
@@ -346,24 +346,27 @@ export default function SizeTranslator({ lang: propLang }) {
   const [brandsLoading, setBrandsLoading] = useState(false);
 
   const garmentType = GARMENT_VALUES[garmentIndex];
+  // A Shalwar Kameez's size is driven by the kameez (upper), and the size
+  // charts are stored under "Kameez" — so translate SK against Kameez data.
+  const apiGarmentType = garmentType === "Shalwar Kameez" ? "Kameez" : garmentType;
 
   useEffect(() => {
     setBrandsLoading(true);
     setSourceBrand(""); setSourceSize(""); setResult(null); setSizes([]);
-    fetch(`${API}/api/brands-for-garment?garment_type=${encodeURIComponent(garmentType)}`)
+    fetch(`${API}/api/brands-for-garment?garment_type=${encodeURIComponent(apiGarmentType)}`)
       .then(r => r.json())
       .then(d => { setBrands(d.brands || []); setBrandsLoading(false); })
       .catch(() => { setBrands([]); setBrandsLoading(false); });
-  }, [garmentType]);
+  }, [apiGarmentType]);
 
   useEffect(() => {
     if (!sourceBrand) { setSizes([]); return; }
     setSourceSize(""); setResult(null);
-    fetch(`${API}/api/sizes-for-brand?brand=${encodeURIComponent(sourceBrand)}&garment_type=${encodeURIComponent(garmentType)}`)
+    fetch(`${API}/api/sizes-for-brand?brand=${encodeURIComponent(sourceBrand)}&garment_type=${encodeURIComponent(apiGarmentType)}`)
       .then(r => r.json())
       .then(d => setSizes(d.sizes || []))
       .catch(() => setSizes([]));
-  }, [sourceBrand, garmentType]);
+  }, [sourceBrand, apiGarmentType]);
 
   const handleTranslate = useCallback(async () => {
     if (!sourceBrand || !sourceSize) return;
@@ -372,7 +375,7 @@ export default function SizeTranslator({ lang: propLang }) {
       const res = await fetch(`${API}/api/translate-size`, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ source_brand:sourceBrand, source_size:sourceSize, garment_type:garmentType }),
+        body: JSON.stringify({ source_brand:sourceBrand, source_size:sourceSize, garment_type:apiGarmentType }),
       });
       const data = await res.json();
       if (!res.ok || data.error) throw new Error(data.error || "Translation failed");
@@ -415,8 +418,20 @@ export default function SizeTranslator({ lang: propLang }) {
       direction: isRTL ? "rtl" : "ltr",
     }}>
 
+      {/* Back to home */}
+      <div style={{ paddingTop:12 }}>
+        <button onClick={onHome} style={{
+          display:"inline-flex", alignItems:"center", gap:6,
+          background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)",
+          color:"#9CA3AF", borderRadius:10, padding:"7px 14px", fontSize:12.5,
+          fontWeight:600, cursor:"pointer", fontFamily:"inherit",
+        }}>
+          {isRTL ? "ہوم ←" : "← Home"}
+        </button>
+      </div>
+
       {/* Header */}
-      <div style={{ textAlign:"center", padding:"20px 0 24px" }}>
+      <div style={{ textAlign:"center", padding:"8px 0 24px" }}>
         <div style={{
           display:"inline-flex", alignItems:"center", gap:7,
           background:"rgba(79,70,229,0.12)", border:"1px solid rgba(79,70,229,0.25)",
@@ -631,7 +646,7 @@ export default function SizeTranslator({ lang: propLang }) {
               fontSize:12, color:"#6B7280", marginTop:2,
               fontFamily: isRTL ? "'Noto Sans Arabic',sans-serif" : "inherit",
             }}>
-              {result.source.garment_type}
+              {st.garments[garmentIndex]}
             </div>
             {result.insight && (
               <div style={{
