@@ -565,7 +565,7 @@ function ResultStep({ t, lang, isDark, ctx, measurements, onReset, onBack }) {
                 onMouseEnter={e=>e.target.style.background="#1ebe5d"}
                 onMouseLeave={e=>e.target.style.background="#25D366"}
                 onClick={() => {
-                  const text = `My Naapify Size Card\n\nName: ${name}\nRecommended size at ${result.brand}: *${result.recommended_size}* (${result.confidence} confidence)\n\nMeasurements:\n${Object.entries(measurements).filter(([k])=>!["method","confidence","note","height_cm","weight_kg"].includes(k)).map(([k,v])=>`${k}: ${v} in`).join("\n")}\n\nFind your size at naapifyv2.netlify.app`;
+                  const text = `My Naapify Size Card\n\nName: ${name}\nRecommended size at ${result.brand}: *${result.recommended_size}* (${result.confidence} confidence)\n\nMeasurements:\n${Object.entries(measurements).filter(([k])=>!["method","confidence","note","height_cm","weight_kg"].includes(k)).map(([k,v])=>`${k}: ${v} in`).join("\n")}\n\nFind your size at naapify.netlify.app`;
                   window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank");
                 }}>
                 <span style={{ marginRight:6 }}>📱</span> Share on WhatsApp
